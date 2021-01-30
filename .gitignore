@@ -1,3 +1,8 @@
+# VS Files
+**/**/.vs
+*fsproj*
+!*fsproj
+
 # Prerequisites
 *.d
 
