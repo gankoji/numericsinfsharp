@@ -1,3 +1,9 @@
+# My ignores
+Math\ 575B\ -\ Algorithms/Example\ Code/*
+*fsac.cache*
+.ionide/*
+*assets.cache*
+
 # VS Files
 **/**/.vs
 *fsproj*
@@ -55,3 +61,18 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+.gitignore
+Math 575B - Algorithms/Homework1 - 20210131/Homework1/obj/Debug/netcoreapp3.1/Homework1.assets.cache
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/obj/project.nuget.cache
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.fs
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/obj/Debug/net5.0/Homework2.AssemblyInfo.fs
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/obj/Debug/net5.0/Homework2.AssemblyInfoInputs.cache
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/obj/Debug/net5.0/Homework2.genruntimeconfig.cache
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/obj/project.assets.json
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/bin/Debug/net5.0/Homework2.runtimeconfig.json
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/bin/Debug/net5.0/Homework2.runtimeconfig.dev.json
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/bin/Debug/net5.0/Homework2.deps.json
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/.vscode/tasks.json
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/.vscode/launch.json
+Math 575B - Algorithms/Homework 2 - 20210214/Homework2/.ionide/symbolCache.db
+.vscode/launch.json
