@@ -5,6 +5,28 @@ import numpy as np
 from sympy.utilities.lambdify import lambdify
 import math
 
+def gradientDescent (f, gradF, x0, f0, dt0):
+    x = x0
+    fval = f0
+    dt = dt0
+    newf = f(x)
+    newg = gradF(x)
+
+    while (math.fabs (newf - fval)) > 1e-10:
+        newf = f(x)
+        newg = gradF(x)
+        newx = x - dt*newg
+        inter = f(newx)
+        if (inter > fval):
+            fval += 1.0
+            dt *= 0.5
+        else:
+            dt = 1.1*dt
+
+        x = newx
+
+    return x
+
 def f181(inarray):
     x = inarray[0]
     y = inarray[1]
@@ -15,7 +37,7 @@ def f181(inarray):
 
     return a + b + c
 
-def gradF(inarray):
+def g181(inarray):
     x = inarray[0]
     y = inarray[1]
 
@@ -27,27 +49,16 @@ def gradF(inarray):
 
 def q_18_1():
     dt = 0.00005
-
     x = np.array([-1.1, 1.1])
-    old_F = 0.
     F = 60000.
-    F_x = gradF(x)
 
     print(f"\n\nMinimizing by Gradient Descent. Starting at ({x[0]}, {x[1]}).")
-    while abs(F - old_F) > 1e-6:
-        old_x = x
-        old_F, F_x, = F, gradF(x)
-        x[0], x[1], dt = x[0] - dt*F_x[0], x[1] - dt*F_x[1], 1.1*dt
-        F = f181(x)
-
-        if (F > old_F):
-            x, F, old_F, dt = old_x, old_F, old_F + 10., 0.5*dt
-
+    x = gradientDescent(f181, g181, x, F, dt)
     print("\nSolution Found. ")
     print(f"Optimal Solution Point: ({x[0]}, {x[1]})")
     print(f"Objective Function Value: {F}")
 
-q_18_1()
+#q_18_1()
 
 def f(inarray):
     x = inarray[0]
