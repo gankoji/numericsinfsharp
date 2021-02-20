@@ -67,10 +67,7 @@ let imageInput = array2D [[255.; 209.; 195.; 202.; 165.; 255.; 227.; 255.; 181.;
                          [234.; 207.; 230.; 242.; 222.; 158.; 255.; 247.; 172.; 179.; 138.; 178.; 162.; 255.; 221.; 213.; 159.; 235.; 224.; 197.; 255.; 204.; 140.; 219.; 254.; 209.; 178.; 237.; 255.; 255.; 200.; 208.; 206.; 231.; 81.; 255.; 170.; 255.; 201.; 175.; 83.; 255.; 197.; 176.; 220.; 255.; 196.; 201.; 165.; 197.; 197.; 121.; 206.; 157.; 171.; 227.; 159.; 150.; 174.; 166.; 160.; 224.; 199.; 203.];
                          [186.; 255.; 255.; 190.; 240.; 109.; 206.; 176.; 203.; 230.; 255.; 255.; 255.; 255.; 255.; 137.; 210.; 144.; 235.; 252.; 241.; 103.; 255.; 243.; 106.; 215.; 200.; 152.; 255.; 119.; 255.; 204.; 255.; 193.; 224.; 159.; 203.; 128.; 174.; 163.; 189.; 211.; 149.; 179.; 219.; 137.; 251.; 196.; 229.; 255.; 194.; 172.; 141.; 124.; 255.; 222.; 255.; 255.; 191.; 149.; 166.; 183.; 229.; 174.]]
 
-let helper1 (a:double) (b:double) (e:double)=
-    (a-b)/(Math.Sqrt(e**2. + (a-b)**2.))
-
-let neighborCost (image:double[,]) ix iy l eps =
+let neighborCost (image:double[,]) ix iy l e =
     let uxn1 = 
         if ix = 0 then 
             0.
@@ -95,31 +92,45 @@ let neighborCost (image:double[,]) ix iy l eps =
         else 
             image.[ix, iy+1]
 
-    printfn "uyp1: %A" uyp1
-    let u = image.[ix, iy]
-    let a1 = helper1(u, uxn1, eps)
-    let a2 = helper1(u, uxp1, eps)
-    let b1 = helper1(u, uyn1, eps)
-    let b2 = helper1(u, uyp1, eps)
+    let u = image.[ix,iy]
+    let a1 = (u-uxn1)/(Math.Sqrt(e**2. + u**2.))//helper1(image.[ix, iy], uxn1, e)
+    let a2 = (u-uxp1)/(Math.Sqrt(e**2. + u**2.))
+    let b1 = (u-uyn1)/(Math.Sqrt(e**2. + u**2.))
+    let b2 = (u-uyp1)/(Math.Sqrt(e**2. + u**2.))
 
-    printfn "a1: %A" a1
+    l*(a1 + a2 + b1 + b2)
 
-    //l*(a1 + a2 + b1 + b2)
+let force (image:double[,]) (orig:double[,]) ix iy l eps = 
+    orig.[ix,iy] - image.[ix,iy] - (neighborCost image ix iy l eps)
 
-// let force (image:double[,]) (orig:double[,]) ix iy l eps = 
-//     orig.[ix,iy] - image.[ix,iy] - neighborCost(image, ix, iy, l, eps)
+let array2norm (input:double[,]) =
+    let squares = Array2D.map (fun (x:double)-> x**2.) input
+    let output = Array2D.copy squares
+    Array2D.set output 0 0 0.
+    for i in 0 .. (Array2D.length1 squares) - 1 do
+        for j in 0 .. (Array2D.length2 squares) - 1 do
+            Array2D.set output 0 0 ((Array2D.get output 0 0) + (Array2D.get squares i j))
+    Math.Sqrt(Array2D.get output 0 0)
 
-// let rk2solve (image:double[,]) (imagediff:double[,]) (orig:double[,]) ix iy l eps m dt = 
-//     let newimage = image
-//     let k11 = dt*imagediff.[ix, iy]
-//     let k12 = dt*(1./m)*(force(image, orig, ix, iy, l, eps) - imagediff.[ix,iy])
-//     let k21 = k11 + dt*k12
-//     newimage.[ix, iy] = image.[ix,iy] + k11/2.
-//     let k22 = dt*(1/m)*(force(newimage, orig, ix, iy, l, eps) - (imagediff.[ix,iy] + k12/2.))
-//     let newpix = image.[ix,iy] + k21
-//     let newpixd = imagediff.[ix,iy] + k22
+let array2diff (in1:double[,]) (in2:double[,]) =
+    let output = Array2D.copy in1
+    for i in 0 .. (Array2D.length1 in1) - 1 do
+        for j in 0 .. (Array2D.length2 in1)- 1 do
+            Array2D.set output i j ((Array2D.get in1 i j) - (Array2D.get in2 i j))
 
-//     (newpix, newpixd)
+    output
+
+let rk2solve (image:double[,]) (imagediff:double[,]) (orig:double[,]) ix iy l eps m dt = 
+    let newimage = Array2D.copy image
+    let k11 = dt*imagediff.[ix, iy]
+    let k12 = dt*(1./m)*((force image orig ix iy l eps) - imagediff.[ix,iy])
+    let k21 = k11 + dt*k12
+    Array2D.set newimage ix iy (image.[ix,iy] + k11/2.)
+    let k22 = dt*(1./m)*((force newimage orig ix iy l eps) - (imagediff.[ix,iy] + k12/2.))
+    let newpix = image.[ix,iy] + k21
+    let newpixd = imagediff.[ix,iy] + k22
+
+    (newpix, newpixd)
 
 let f181 (p:seq<double>) = 
     let x = Seq.item 0 p
@@ -201,18 +212,18 @@ let gradientDescent f gradF x0 f0 dt0=
 
 [<EntryPoint>]
 let main argv =
-    printfn "Question 18.1: Optimization"
-    let xstar = gradientDescent f181 g181 [0.;0.] 6000. 1e-1
-    printfn "Optimal point: %A" xstar
-    printfn "Optimal Function Value: %A" (f181 xstar)
+    // printfn "Question 18.1: Optimization"
+    // let xstar = gradientDescent f181 g181 [0.;0.] 6000. 1e-1
+    // printfn "Optimal point: %A" xstar
+    // printfn "Optimal Function Value: %A" (f181 xstar)
 
-    printfn "Question 18.2: Optimization"
-    let xstar = gradientDescent f182 g182 [0.;0.] 6000. 1e-3
-    printfn "Optimal point: %A" xstar
-    printfn "Optimal Function Value: %A" (f182 xstar)
+    // printfn "Question 18.2: Optimization"
+    // let xstar = gradientDescent f182 g182 [0.;0.] 6000. 1e-3
+    // printfn "Optimal point: %A" xstar
+    // printfn "Optimal Function Value: %A" (f182 xstar)
 
-    let x0 = (Seq.init 99 (fun x -> 0.1))
-    let f0 = (f183 x0) + 100.
+    // let x0 = (Seq.init 99 (fun x -> 0.1))
+    // let f0 = (f183 x0) + 100.
 
     // printfn "Third problem"
 
@@ -229,19 +240,31 @@ let main argv =
     // chart183 |> Chart.Show
 
     printfn "ImageInput Element: %A" imageInput.[0,0]
-    neighborCost imageInput 0 0 1 1e-3
-    // for l in [1.; 2.; 4.; 8.; 16.; 32.; 64.; 128.; 256] do
-    //     let imagediff = Array.init 64 64 (fun i -> 0.)
-    //     let imageOutput = Array.copy imageInput
-    //     let oldOutput = Array.init 64 64 0.
-    //     let count = 0
-    //     while (np.linalg.norm(imageOutput - oldOutput) > 0.5) && (count < 200) do
-    //         printfn "Looping"
-    //         let oldOutput = Array.copy imageOutput
-    //         for i=0 to 63 do
-    //             for j=0 to 63 do
-    //                 imageOutput.[i,j], imagediff.[i,j] = rk2solve(imageOutput, imagediff, imageInput, i,j, l, 1e-2, 0.2, 0.01)
-    //         count = count + 1
+    printfn "NeighborCost: %A" (neighborCost imageInput 0 0 1. 1e-3)
+    printfn "Force: %A" (force imageInput imageInput 0 0 1. 1e-3)
+    printfn "rk2solve: %A"  (rk2solve imageInput imageInput imageInput 0 0 1. 1e-3 2. 0.1)
+
+    for l in [1.; 2.; 4.; 8.; 16.; 32.; 64.; 128.; 256.] do
+        printfn "Starting with lambda = %f" l
+        let imagediff = Array2D.init 64 64 (fun i j -> 0.)
+        let imageOutput = Array2D.copy imageInput
+        let oldOutput = Array2D.init 64 64 (fun i j -> 0.)
+        let count = [|0|]
+        while ((array2norm (array2diff imageOutput oldOutput)) > 0.5) && (count.[0] < 200) do
+            Array2D.blit imageOutput 0 0 oldOutput 0 0 (Array2D.length1 imageOutput) (Array2D.length2 imageOutput)
+            for i=0 to 63 do
+                for j=0 to 63 do
+                    let (a,b) = (rk2solve imageOutput imagediff imageInput i j l 1e-2 0.2 0.01)
+                    Array2D.set imageOutput i j a
+                    Array2D.set imagediff i j b
+            Array.set count 0 (count.[0] + 1)
     
-    //     printfn "Took %d iterations." count
+        let seqOutput = Seq.cast<seq<double> > imageOutput
+        let mutable seqseqOutput = [[]]
+        for i in 0 .. (Array2D.length1 imageOutput) - 1 do
+            seqseqOutput <- seqseqOutput@(Array.toSeq imageOutput.[i,*])
+        printfn "SeqseqOutput: %A" seqseqOutput
+        //let chart = Chart.Heatmap(seqseqOutput)
+        //chart |> Chart.Show
+        printfn "Took %d iterations." count.[0]
     0 // return an integer exit code
