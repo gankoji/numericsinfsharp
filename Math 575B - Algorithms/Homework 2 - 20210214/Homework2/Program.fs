@@ -1,5 +1,6 @@
 // Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
 open System
+open System.IO
 open FSharp.Plotly
 
 let imageInput = array2D [[255.; 209.; 195.; 202.; 165.; 255.; 227.; 255.; 181.; 169.; 249.; 180.; 228.; 190.; 192.; 255.; 218.; 150.; 139.; 198.; 247.; 197.; 183.; 224.; 191.; 196.; 154.; 239.; 192.; 119.; 238.; 247.; 255.; 255.; 255.; 115.; 152.; 204.; 166.; 142.; 201.; 230.; 250.; 232.; 193.; 142.; 205.; 73.; 192.; 202.; 105.; 181.; 207.; 131.; 239.; 241.; 241.; 216.; 230.; 206.; 121.; 255.; 255.; 187.];
@@ -212,32 +213,32 @@ let gradientDescent f gradF x0 f0 dt0=
 
 [<EntryPoint>]
 let main argv =
-    // printfn "Question 18.1: Optimization"
-    // let xstar = gradientDescent f181 g181 [0.;0.] 6000. 1e-1
-    // printfn "Optimal point: %A" xstar
-    // printfn "Optimal Function Value: %A" (f181 xstar)
+    printfn "Question 18.1: Optimization"
+    let xstar = gradientDescent f181 g181 [0.;0.] 6000. 1e-1
+    printfn "Optimal point: %A" xstar
+    printfn "Optimal Function Value: %A" (f181 xstar)
 
-    // printfn "Question 18.2: Optimization"
-    // let xstar = gradientDescent f182 g182 [0.;0.] 6000. 1e-3
-    // printfn "Optimal point: %A" xstar
-    // printfn "Optimal Function Value: %A" (f182 xstar)
+    printfn "Question 18.2: Optimization"
+    let xstar = gradientDescent f182 g182 [0.;0.] 6000. 1e-3
+    printfn "Optimal point: %A" xstar
+    printfn "Optimal Function Value: %A" (f182 xstar)
 
-    // let x0 = (Seq.init 99 (fun x -> 0.1))
-    // let f0 = (f183 x0) + 100.
+    let x0 = (Seq.init 99 (fun x -> 0.1))
+    let f0 = (f183 x0) + 100.
 
-    // printfn "Third problem"
+    printfn "Third problem"
 
-    // printfn "Initial Gradient: %A" (g183 x0)
-    // let xstar = gradientDescent f183 g183 x0 f0 1e-1
-    // printfn "Optimal Point: %A" xstar
-    // printfn "Optimal Function Value: %A" (f183 xstar)
-    // let indices = (Seq.init 99 id)
-    // let chart183 = Chart.Line(indices, xstar,
-    //                     Name="Optimal Point for 18.3",
-    //                     ShowMarkers=true,
-    //                     MarkerSymbol=StyleParam.Symbol.Square)
-    //                 |> Chart.withLineStyle(Width=2,Dash=StyleParam.DrawingStyle.Dot)
-    // chart183 |> Chart.Show
+    printfn "Initial Gradient: %A" (g183 x0)
+    let xstar = gradientDescent f183 g183 x0 f0 1e-1
+    printfn "Optimal Point: %A" xstar
+    printfn "Optimal Function Value: %A" (f183 xstar)
+    let indices = (Seq.init 99 id)
+    let chart183 = Chart.Line(indices, xstar,
+                        Name="Optimal Point for 18.3",
+                        ShowMarkers=true,
+                        MarkerSymbol=StyleParam.Symbol.Square)
+                    |> Chart.withLineStyle(Width=2,Dash=StyleParam.DrawingStyle.Dot)
+    chart183 |> Chart.Show
 
     printfn "ImageInput Element: %A" imageInput.[0,0]
     printfn "NeighborCost: %A" (neighborCost imageInput 0 0 1. 1e-3)
@@ -250,7 +251,7 @@ let main argv =
         let imageOutput = Array2D.copy imageInput
         let oldOutput = Array2D.init 64 64 (fun i j -> 0.)
         let count = [|0|]
-        while ((array2norm (array2diff imageOutput oldOutput)) > 0.5) && (count.[0] < 200) do
+        while ((array2norm (array2diff imageOutput oldOutput)) > 1000.0) && (count.[0] < 200) do
             Array2D.blit imageOutput 0 0 oldOutput 0 0 (Array2D.length1 imageOutput) (Array2D.length2 imageOutput)
             for i=0 to 63 do
                 for j=0 to 63 do
@@ -259,12 +260,14 @@ let main argv =
                     Array2D.set imagediff i j b
             Array.set count 0 (count.[0] + 1)
     
-        let seqOutput = Seq.cast<seq<double> > imageOutput
-        let mutable seqseqOutput = [[]]
+
+        let fileOut = File.CreateText((sprintf "Denoised_%f.csv" l))
         for i in 0 .. (Array2D.length1 imageOutput) - 1 do
-            seqseqOutput <- seqseqOutput@(Array.toSeq imageOutput.[i,*])
-        printfn "SeqseqOutput: %A" seqseqOutput
-        //let chart = Chart.Heatmap(seqseqOutput)
-        //chart |> Chart.Show
+            for j in 0 .. (Array2D.length2 imageOutput) - 1 do
+                let pix = (Array2D.get imageOutput i j) 
+                fprintf fileOut " %.8f," pix
+            fprintf fileOut "\n"
+            fileOut.Flush()
+
         printfn "Took %d iterations." count.[0]
     0 // return an integer exit code
