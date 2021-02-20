@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.optimize as opt
 import math
 
 imageInput = np.array([[255, 209, 195, 202, 165, 255, 227, 255, 181, 169, 249, 180, 228, 190, 192, 255, 218, 150, 139, 198, 247, 197, 183, 224, 191, 196, 154, 239, 192, 119, 238, 247, 255, 255, 255, 115, 152, 204, 166, 142, 201, 230, 250, 232, 193, 142, 205, 73, 192, 202, 105, 181, 207, 131, 239, 241, 241, 216, 230, 206, 121, 255, 255, 187],
@@ -135,7 +134,7 @@ for l in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
                 imageOutput[i,j], imagediff[i,j] = rk2solve(imageOutput, imagediff, imageInput, i,j, l, 1e-2, 0.2, 0.01)
         count = count + 1
 
-    print(f"Tooke {count} iterations.")
+    print(f"Took {count} iterations.")
 
 
 
