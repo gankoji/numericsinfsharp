@@ -51,7 +51,7 @@ let g2 (p:seq<double>) =
     let y = Seq.item 1 p
     let sub1 = (-(x**2.0) + y**2.0)
     let a = 
-        (2.0*x + 40.0*(-x*sub1/sqrt(sub1**2.0 + 1.0) - x)/Math.Sqrt(sub1 + Math.Sqrt(sub1**2.0 + 1.0)) - 20.0)
+        (2.0*x + 40.0*(-x*sub1/Math.sqrt(sub1**2.0 + 1.0) - x)/Math.Sqrt(sub1 + Math.Sqrt(sub1**2.0 + 1.0)) - 20.0)
     let b = 
         (2.0*y + 40.0*(y*sub1/Math.Sqrt(sub1**2.0 + 1.0) + y)/Math.Sqrt(sub1 + Math.Sqrt(sub1**2.0 + 1.0)))
 

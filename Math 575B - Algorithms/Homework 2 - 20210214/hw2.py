@@ -1,8 +1,8 @@
 from sympy import *
 from sympy.vector import gradient
 from sympy.vector.coordsysrect import CoordSys3D
-import numpy as np
 from sympy.utilities.lambdify import lambdify
+import numpy as np
 import math
 
 def gradientDescent (f, gradF, x0, f0, dt0):
@@ -12,18 +12,17 @@ def gradientDescent (f, gradF, x0, f0, dt0):
     newf = f(x)
     newg = gradF(x)
 
-    while (math.fabs (newf - fval)) > 1e-10:
+    while (math.fabs (newf - fval)) > 1e1:
         newf = f(x)
         newg = gradF(x)
         newx = x - dt*newg
         inter = f(newx)
         if (inter > fval):
             fval += 1.0
-            dt *= 0.5
+            dt = dt*0.5
         else:
             dt = 1.1*dt
-
-        x = newx
+            x = newx
 
     return x
 
@@ -58,7 +57,7 @@ def q_18_1():
     print(f"Optimal Solution Point: ({x[0]}, {x[1]})")
     print(f"Objective Function Value: {F}")
 
-#q_18_1()
+q_18_1()
 
 def f(inarray):
     x = inarray[0]
@@ -132,6 +131,35 @@ def f183(inarray):
 
     return sum
 
-print(f183(np.zeros((99,))))
-print(f183(np.ones((99,))))
-print(f183(-np.ones((99,))))
+def g183(inarray): 
+    x = inarray
+    x = np.insert(x, 0, -1., axis=0)
+    x = np.insert(x, 100, 1., axis=0)
+    g = np.zeros(inarray.shape)
+    for i in range(1, 100):
+        a = x[i-1]
+        b = x[i]
+        c = x[i+1]
+        g[i-1] = 2*b - c - a - 0.25*(b - b**3)
+
+    # print(inarray)
+    # print(f183(inarray))
+    # print(g)
+    return g
+
+def q_18_3():
+    dt = 0.1
+    x = 0.1*np.ones((99,))
+    F = f183(x) + 100.
+
+    print(f"\n\nMinimizing by Gradient Descent. Starting at ({x}).")
+    print(f"Initial gradient: {g183(x)}.")
+    x = gradientDescent(f183, g183, x, F, dt)
+    print("\nSolution Found. ")
+    print(f"Optimal Solution Point: {x}")
+    print(f"Objective Function Value: {F}")
+
+#q_18_3()
+# print(g183(np.zeros((99,))))
+# print(f183(np.ones((99,))))
+# print(g183(-np.ones((99,))))
