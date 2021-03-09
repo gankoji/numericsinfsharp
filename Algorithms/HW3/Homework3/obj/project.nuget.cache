@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "+wsRBjQaXfZd91T3xd1X6o0metnme92Ind+SP4yDnaNheut3zrM8q1qH+KMxh4MgbRxoRIw5XPRX5CeIhb7IEA==",
+  "success": true,
+  "projectFilePath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW3/Homework3/Homework3.fsproj",
+  "expectedPackageFiles": [
+    "/Users/jbailey/.nuget/packages/fsharp.core/5.0.0/fsharp.core.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
