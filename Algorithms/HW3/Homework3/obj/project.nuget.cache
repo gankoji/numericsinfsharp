@@ -1,10 +1,29 @@
 {
   "version": 2,
-  "dgSpecHash": "+wsRBjQaXfZd91T3xd1X6o0metnme92Ind+SP4yDnaNheut3zrM8q1qH+KMxh4MgbRxoRIw5XPRX5CeIhb7IEA==",
+  "dgSpecHash": "3HMrFY3hEbSs5jzTE27CZvEuUDytT9iffRdHUTcbRjVpBnfl+HrZ1O1Qo8p4nsNtJASg00Q8rhwhM49bM6Edsg==",
   "success": true,
   "projectFilePath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW3/Homework3/Homework3.fsproj",
   "expectedPackageFiles": [
-    "/Users/jbailey/.nuget/packages/fsharp.core/5.0.0/fsharp.core.5.0.0.nupkg.sha512"
+    "/Users/jbailey/.nuget/packages/fsharp.core/5.0.0/fsharp.core.5.0.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/fsharp.plotly/1.2.2/fsharp.plotly.1.2.2.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/mathnet.numerics/4.15.0/mathnet.numerics.4.15.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/microsoft.netcore.targets/1.1.0/microsoft.netcore.targets.1.1.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/runtime.native.system/4.3.0/runtime.native.system.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.globalization/4.3.0/system.globalization.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.io/4.3.0/system.io.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.reflection/4.3.0/system.reflection.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.reflection.extensions/4.3.0/system.reflection.extensions.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.reflection.primitives/4.3.0/system.reflection.primitives.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.resources.resourcemanager/4.3.0/system.resources.resourcemanager.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.runtime/4.3.0/system.runtime.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.runtime.handles/4.3.0/system.runtime.handles.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.runtime.interopservices/4.3.0/system.runtime.interopservices.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.runtime.interopservices.runtimeinformation/4.3.0/system.runtime.interopservices.runtimeinformation.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.text.encoding/4.3.0/system.text.encoding.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.threading/4.3.0/system.threading.4.3.0.nupkg.sha512",
+    "/Users/jbailey/.nuget/packages/system.threading.tasks/4.3.0/system.threading.tasks.4.3.0.nupkg.sha512"
   ],
   "logs": []
 }
