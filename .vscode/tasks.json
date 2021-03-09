@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "HW1",
+            "label": "buildHW1",
             "command": "dotnet",
             "type": "shell",
             "args": [
@@ -22,7 +22,25 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "build",
+            "label": "buildHW2",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                // Ask dotnet build to generate full paths for file names.
+                "/property:GenerateFullPaths=true",
+                // Do not generate summary otherwise it leads to duplicate errors in Problems panel
+                "/consoleloggerparameters:NoSummary",
+                "Algorithms/HW2/Homework2/Homework2.fsproj"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "buildHW3",
             "command": "dotnet",
             "type": "shell",
             "args": [

@@ -1281,14 +1281,14 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Math 575B - Algorithms/Homework 2 - 20210214/Homework2/Homework2.fsproj",
+      "projectUniqueName": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW2/Homework2/Homework2.fsproj",
       "projectName": "Homework2",
-      "projectPath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Math 575B - Algorithms/Homework 2 - 20210214/Homework2/Homework2.fsproj",
+      "projectPath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW2/Homework2/Homework2.fsproj",
       "packagesPath": "/Users/jbailey/.nuget/packages/",
-      "outputPath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Math 575B - Algorithms/Homework 2 - 20210214/Homework2/obj/",
+      "outputPath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW2/Homework2/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Math 575B - Algorithms/Homework 2 - 20210214/Homework2/NuGet.Config",
+        "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW2/Homework2/NuGet.Config",
         "/Users/jbailey/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
