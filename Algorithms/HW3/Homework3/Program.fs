@@ -6,47 +6,31 @@ open FSharp.Plotly
 open MathNet.Numerics.LinearAlgebra
 
 let t = 100000.
-let newtonL2Eq f dF ddF xin =
-    printfn "Equality Constrained Minimization"
-    let dt0 = 0.01
-    let rec descentLoop x (fval:double) dt = 
-        let newf = (f x)
-        let newg = (dF x)
-        let newh = (ddF x)
-        if (Math.Abs (newf - fval)) < 1e-10 then
-            printfn "Delta: %A" (Math.Abs (newf - fval))
-            x
-        else
-            let newx = Seq.zip x newg |> Seq.map (fun (x, dx) -> x - dt*dx)
-            let inter = (f newx)
-            if (inter > fval) then
-                descentLoop x (fval + 1.0) (0.5*dt)
-            else 
-                let newt = 1.1*dt
-                descentLoop newx newf newt
+let newtonL2Eq f dF ddF (xin:Vector<double>) =
+    let rec innerLoop (x:Vector<double>) (d:Vector<double>) f (fval:double) =
+        if (f (x.Add d)) >= fval then 
+            if (d.L2Norm() > 1e-6) then 
+                (innerLoop x (0.5*d) f fval)
+            else x
+        else x
 
-    descentLoop xin (f xin) dt0
-    // x = xin
-    // while True:
-    //     F = f(x)
-    //     DF = dF(x)
-    //     if math.fabs(np.linalg.norm(DF)) < 1e-8:
-    //         break
-    //     DDF = ddF(x)
-    //     if np.linalg.cond(DDF) < 1/sys.float_info.epsilon:
-    //         d = -np.linalg.solve(DDF,DF)
-    //     else:
-    //         break
-    //     flag = False
-    //     while (f(x + d) >= F):
-    //         d = 0.5*d
-    //         if math.fabs(np.linalg.norm(d)) < 1e-6:
-    //             if flag:
-    //                 break
-    //             d = -DF
-    //             flag = True
-    //     x = x + d
-    // return x
+    let rec descentLoop x (fval:double) = 
+        let newf = (f x)
+        let math:Matrix<double> = (ddF x)
+        let condh = math.FrobeniusNorm()
+        let vecg:Vector<double> = (dF x)
+        let normg = vecg.L2Norm()
+        if ((Math.Abs (newf - fval)) < 1e-1) || (normg < 1e-6) || (condh < 1e-2) then
+            printfn "Delta: %A" (Math.Abs (newf - fval))
+            (CreateVector.DenseOfEnumerable x)
+        else
+            let d = -math.Solve(vecg)
+            let newx = Seq.zip x d |> Seq.map (fun (x, dx) -> x - dx)
+            let nx = (CreateVector.DenseOfEnumerable newx)
+            let x = (innerLoop nx d f newf)
+            descentLoop x newf
+
+    descentLoop xin ((f xin) + 10000.)
 
 // Gradient Descent w/ Backtracking
 let gradientDescent f gradF x0 f0 dt0=
@@ -67,12 +51,29 @@ let gradientDescent f gradF x0 f0 dt0=
 
     descentLoop x0 f0 dt0
 
-// Define a function to construct a message to print
-let from whom =
-    sprintf "from %s" whom
+let f191 (p:Vector<double>) =
+    let x = p.[0]
+    let y = p.[1]
+    x**2. + 3600000.0*y**4. + 100000.0*y**2.*(x - 1.)*(72.*x + 372.) + y**2. + 100000.0*(x - 1.)**2.*(6.*x + 2.9)**2.
 
+let g191 (p:Vector<double>) =
+    let x = p.[0]
+    let y = p.[1]
+    let seqg = [2.*x + 7200000.0*y**2.*(x - 1.) + 100000.0*y**2.*(72.*x + 372.) + 100000.0*(x - 1.)**2.*(72.*x + 348.) + (6.*x + 29.)**2.*(200000.0*x - 200000.0); 
+                14400000.0*y**3. + 200000.0*y*(x - 1.)*(72.*x + 372.) + 2.*y]
+    (CreateVector.DenseOfEnumerable seqg)
+
+let h191 (p:Vector<double>) =
+    let x = p.[0]
+    let y = p.[1]
+    let seqh = array2D [[14400000.0*y**2. + 7200000.0*(x - 1.)**2. + 200000.0*(6.*x + 29.)**2. + 2.*(72.*x + 348.)*(200000.0*x - 200000.0) + 2.;
+                 14400000.0*y*(x - 1.) + 200000.0*y*(72.*x + 372.)];
+                [14400000.0*y*(x - 1.) + 200000.0*y*(72.*x + 372.);
+                 43200000.0*y**2. + (72.*x + 372.)*(200000.0*x - 200000.0) + 2.]]
+
+    (CreateMatrix.DenseOfArray seqh)
 [<EntryPoint>]
 let main argv =
-    let message = from "F#" // Call the function
-    printfn "Hello world %s" message
+    let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|0.; 0.|])
+    printfn "%A" result
     0 // return an integer exit code

@@ -83,31 +83,36 @@ def newtonL2Ineq(f, g, dF, ddF, xin):
 
 x,y = symbols('x y')
 h = ((6*x + 29)**2)*((x-1)**2) + 12*(6*x + 31)*(x-1)*y**2 + 36*y**4 
+h = x**2 + y**2 + t*h
 dhdx = diff(h,x)
 dhdy = diff(h,y)
 gradH = [dhdx, dhdy]
 hessH = [[diff(dhdx,x), diff(dhdx, y)], [diff(dhdy, x), diff(dhdy, y)]]
+print(h)
+print(gradH)
+print(hessH)
 h = lambdify([x,y], h)
 dH = lambdify([x, y], gradH)
 ddH = lambdify([x,y], hessH)
+
 
 def f191(p):
     x = p[0]
     y = p[1]
 
-    return x**2 + y**2 + t*h(x,y)
+    return h(x,y)
 
 def g191(p):
     x = p[0]
     y = p[1]
 
-    return np.array([2*x, 2*y]) + t*np.array(dH(x,y))
+    return np.array(dH(x,y))
 
 def gg191(p):
     x = p[0]
     y = p[1]
 
-    return np.array([[2, 0],[0, 2]]) + t*np.array(ddH(x,y))
+    return np.array(ddH(x,y))
 
 print(f"Question 19.1: Equality Constrained Minimization")
 print(f"Optimizing via Newton's Method, starting at (0,0), with {t} slack.")

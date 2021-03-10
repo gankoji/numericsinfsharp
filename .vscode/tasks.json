@@ -10,9 +10,9 @@
             "args": [
                 "build",
                 // Ask dotnet build to generate full paths for file names.
-                "/property:GenerateFullPaths=true",
+                //"/property:GenerateFullPaths=true",
                 // Do not generate summary otherwise it leads to duplicate errors in Problems panel
-                "/consoleloggerparameters:NoSummary",
+                //"/consoleloggerparameters:NoSummary",
                 "Algorithms/HW1/Homework1/Homework1.fsproj"
             ],
             "group": "build",
@@ -49,7 +49,7 @@
                 "/property:GenerateFullPaths=true",
                 // Do not generate summary otherwise it leads to duplicate errors in Problems panel
                 "/consoleloggerparameters:NoSummary",
-                "Algorithms/HW3/Homework3/Homework3.fsproj"
+                "${workspaceRoot}/Algorithms/HW3/Homework3/Homework3.fsproj"
             ],
             "group": "build",
             "presentation": {
