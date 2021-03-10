@@ -9,26 +9,39 @@ let t = 100000.
 let newtonL2Eq f dF ddF (xin:Vector<double>) =
     let rec innerLoop (x:Vector<double>) (d:Vector<double>) f (fval:double) =
         if (f (x.Add d)) >= fval then 
-            if (d.L2Norm() > 1e-6) then 
+            printfn "Backing up"
+            if (d.L2Norm() > 1e-2) then 
                 (innerLoop x (0.5*d) f fval)
-            else x
-        else x
+            else (x.Add d)
+        else (x.Add d)
 
     let rec descentLoop x (fval:double) = 
+        printfn "Step"
         let newf = (f x)
         let math:Matrix<double> = (ddF x)
-        let condh = math.FrobeniusNorm()
+        let condh = try 
+                        math.ConditionNumber()
+                    with
+                        | ex -> printfn "%A" ex; 110.
         let vecg:Vector<double> = (dF x)
         let normg = vecg.L2Norm()
-        if ((Math.Abs (newf - fval)) < 1e-1) || (normg < 1e-6) || (condh < 1e-2) then
+        if ((Math.Abs (newf - fval)) < 1e-6) || (normg < 1e-4) || (condh > 100.) then
             printfn "Delta: %A" (Math.Abs (newf - fval))
+            printfn "NormG: %A" normg
+            printfn "CondH: %A" condh
             (CreateVector.DenseOfEnumerable x)
         else
-            let d = -math.Solve(vecg)
-            let newx = Seq.zip x d |> Seq.map (fun (x, dx) -> x - dx)
-            let nx = (CreateVector.DenseOfEnumerable newx)
-            let x = (innerLoop nx d f newf)
-            descentLoop x newf
+            let d = math.Solve(vecg).Negate()
+            if d.L2Norm() > 1e-3 then
+                //let newx = Seq.zip x d |> Seq.map (fun (x, dx) -> x - dx)
+                //printfn "%A" x
+                //printfn "%A" d
+                let nx = (CreateVector.DenseOfEnumerable x)
+                let x = (innerLoop nx d f newf)
+                //printfn "%A" x
+                descentLoop x newf
+            else
+                (CreateVector.DenseOfEnumerable x)
 
     descentLoop xin ((f xin) + 10000.)
 
@@ -74,6 +87,6 @@ let h191 (p:Vector<double>) =
     (CreateMatrix.DenseOfArray seqh)
 [<EntryPoint>]
 let main argv =
-    let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|0.; 0.|])
+    let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|-0.1; -0.1|])
     printfn "%A" result
     0 // return an integer exit code
