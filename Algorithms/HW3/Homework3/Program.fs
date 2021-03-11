@@ -9,30 +9,30 @@ let t = 100000.
 let newtonL2Eq f dF ddF (xin:Vector<double>) =
     let rec innerLoop (x:Vector<double>) (d:Vector<double>) f (fval:double) =
         if (f (x.Add d)) >= fval then 
-            printfn "Backing up"
-            if (d.L2Norm() > 1e-2) then 
+            //printfn "Backing up"
+            if (d.L2Norm() > 1e-6) then 
                 (innerLoop x (0.5*d) f fval)
             else (x.Add d)
         else (x.Add d)
 
     let rec descentLoop x (fval:double) = 
-        printfn "Step"
+        //printfn "Step"
         let newf = (f x)
         let math:Matrix<double> = (ddF x)
         let condh = try 
                         math.ConditionNumber()
                     with
-                        | ex -> printfn "%A" ex; 110.
+                        | ex -> printfn "%A" ex; 1.1e9
         let vecg:Vector<double> = (dF x)
         let normg = vecg.L2Norm()
-        if ((Math.Abs (newf - fval)) < 1e-6) || (normg < 1e-4) || (condh > 100.) then
+        if ((Math.Abs (newf - fval)) < 1e-6) || (normg < 1e-8) || (condh > 1e9) then
             printfn "Delta: %A" (Math.Abs (newf - fval))
             printfn "NormG: %A" normg
             printfn "CondH: %A" condh
             (CreateVector.DenseOfEnumerable x)
         else
             let d = math.Solve(vecg).Negate()
-            if d.L2Norm() > 1e-3 then
+            if d.L2Norm() > 1e-8 then
                 //let newx = Seq.zip x d |> Seq.map (fun (x, dx) -> x - dx)
                 //printfn "%A" x
                 //printfn "%A" d
@@ -85,8 +85,10 @@ let h191 (p:Vector<double>) =
                  43200000.0*y**2. + (72.*x + 372.)*(200000.0*x - 200000.0) + 2.]]
 
     (CreateMatrix.DenseOfArray seqh)
+
 [<EntryPoint>]
 let main argv =
-    let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|-0.1; -0.1|])
-    printfn "%A" result
+    let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|0.; 0.|])
+    printfn "Optimal Point: %A" result
+    printfn "Optimal Value: %A" (f191 result)
     0 // return an integer exit code
