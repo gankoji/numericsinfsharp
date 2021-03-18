@@ -9,12 +9,15 @@ def gradientDescent (f, gradF, x0, f0, dt0):
     fval = f0
     dt = dt0
     newf = f(x)
-    newg = gradF(x)
 
-    while (math.fabs (newf - fval)) > 1e1:
+    while (math.fabs (newf - fval)) > 1e-6:
         newf = f(x)
         newg = gradF(x)
         newx = x - dt*newg
+
+        print(newx)
+        print(newf)
+        print(newg)
         inter = f(newx)
         if (inter > fval):
             fval += 1.0
@@ -83,7 +86,8 @@ def newtonL2Ineq(f, g, dF, ddF, xin):
 
 ## Problem 1: Unconstrained Optimization
 x,y = symbols('x y')
-h = ((3*x + y)*exp(30*x + 10*y) + 3*y*exp(30*y) - (2*x + 3*y)*exp(-20*x -30*y))/(exp(30*x+10*y) + exp(30*y) + exp(-20*x -30*y))
+h = ((3*x + y)*exp(3*x + 1*y) + 3*y*exp(3*y) - (2*x + 3*y)*exp(-2*x -3*y))/(exp(3*x+1*y) + exp(3*y) + exp(-2*x -3*y))
+#h = (3*x + y) + 3*y -2*x -3*y
 dhdx = diff(h,x)
 dhdy = diff(h,y)
 gradH = [dhdx, dhdy]
@@ -111,13 +115,12 @@ def ddf1(p):
 
     return np.array(ddH(x,y))
 
-print(f"Question 1: Unconstrained Minimization")
-print(f"Optimizing via Newton's Method, starting at (0,0).")
 x0 = np.array([-1, -1])
-x = gradientDescent(f1, df1, x0, (f1(x0) + 1000.), 0.00005)
+print(f"Question 1: Unconstrained Minimization")
+print(f"Optimizing via Newton's Method, starting at ({x0[0]},{x0[1]}).")
+x = newtonL2Eq(f1, df1, ddf1, x0)
 print(f"Solved! Optimal point: ({x[0]}, {x[1]}).")
 print(f"Optimal Function Value: {f1(x)}.")
-print(f"Constraint Value: {h(x[0], x[1])}.")
 
 # x,y,z = symbols('x y z')
 # f0 = 4*x - 2*y - z
