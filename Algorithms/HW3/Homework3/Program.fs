@@ -9,14 +9,14 @@ let t = 100000.
 let newtonL2Eq f dF ddF (xin:Vector<double>) =
     let rec innerLoop (x:Vector<double>) (d:Vector<double>) f (fval:double) =
         if (f (x.Add d)) >= fval then 
-            //printfn "Backing up"
+            printfn "Backing up"
             if (d.L2Norm() > 1e-6) then 
                 (innerLoop x (0.5*d) f fval)
             else (x.Add d)
         else (x.Add d)
 
     let rec descentLoop x (fval:double) = 
-        //printfn "Step"
+        printfn "Step"
         let newf = (f x)
         let math:Matrix<double> = (ddF x)
         let condh = try 
@@ -33,12 +33,11 @@ let newtonL2Eq f dF ddF (xin:Vector<double>) =
         else
             let d = math.Solve(vecg).Negate()
             if d.L2Norm() > 1e-8 then
-                //let newx = Seq.zip x d |> Seq.map (fun (x, dx) -> x - dx)
-                //printfn "%A" x
-                //printfn "%A" d
+                printfn "%A" x
+                printfn "%A" d
                 let nx = (CreateVector.DenseOfEnumerable x)
-                let x = (innerLoop nx d f newf)
-                //printfn "%A" x
+                let x = (innerLoop nx d f fval)
+                printfn "%A" x
                 descentLoop x newf
             else
                 (CreateVector.DenseOfEnumerable x)
@@ -86,9 +85,35 @@ let h191 (p:Vector<double>) =
 
     (CreateMatrix.DenseOfArray seqh)
 
+let fex (p:Vector<double>) =
+    let x = p.[0]
+    let y = p.[1]
+
+    x**2. + y**2. + 100.0*(x + y - 1.)
+
+let gex (p:Vector<double>) =
+    let x = p.[0]
+    let y = p.[1]
+
+    let seqg = [2.*x + 100.; 
+                2.*y + 100.]
+    (CreateVector.DenseOfEnumerable seqg)
+
+let hex (p:Vector<double>) =
+    let x = p.[0]
+    let y = p.[1]
+    let seqh = array2D [[2.;
+                         0.];
+                        [0.;
+                         2.]]
+
+    (CreateMatrix.DenseOfArray seqh)
 [<EntryPoint>]
 let main argv =
     let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|0.; 0.|])
     printfn "Optimal Point: %A" result
     printfn "Optimal Value: %A" (f191 result)
+    let result = newtonL2Eq fex gex hex (CreateVector.DenseOfEnumerable [|-0.5; -0.5|])
+    printfn "Optimal Point: %A" result
+    printfn "Optimal Value: %A" (fex result)
     0 // return an integer exit code
