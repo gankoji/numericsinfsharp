@@ -147,3 +147,39 @@ def rk4_step(dt, p, df):
     k4 = dt*df(p + k3)
 
     return p + (1/6.)*k1 + (1/3.)*k2 + (1/3.)*k3 + (1/6.)*k4
+
+def fire_shot(theta):
+    trad = theta*math.pi/180.
+    x = np.array([0,0,10*math.cos(trad),10*math.sin(trad)])
+    while x[1] >= 0:
+        x = rk4_step(0.01, x, df2) 
+    return x[0]
+
+def sweep(start, stop, nsteps):
+    ranges = np.zeros((nsteps,))
+    for i,t in enumerate(np.linspace(start, stop,nsteps)):
+        ranges[i] = fire_shot(t)
+    maxval = np.max(ranges)
+    maxidx = np.argmax(ranges)
+    return maxidx, maxval
+
+def search():
+    oldRange = -1.
+    newRange = 0.
+    start = 0.
+    stop = 90.
+    nsteps = int(1e2)
+    delta = 0.25
+
+    while math.fabs(oldRange - newRange) >= 1e-4:
+        oldRange = newRange
+        idx, newRange = sweep(start, stop, nsteps)
+        angles = np.linspace(start, stop, nsteps)
+        best = angles[idx]
+        start = best*(1-delta)
+        stop = best*(1+delta)
+
+    print(f"Optimum Angle Found: {angles[idx]}")
+    print(f"Optimum Range: {best}")
+
+search()
