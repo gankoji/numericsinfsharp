@@ -5,18 +5,16 @@ open System.IO
 open FSharp.Plotly
 open MathNet.Numerics.LinearAlgebra
 
-let t = 100000.
+let t = 1000.
 let newtonL2Eq f dF ddF (xin:Vector<double>) =
     let rec innerLoop (x:Vector<double>) (d:Vector<double>) f (fval:double) =
         if (f (x.Add d)) >= fval then 
-            printfn "Backing up"
             if (d.L2Norm() > 1e-6) then 
                 (innerLoop x (0.5*d) f fval)
             else (x.Add d)
         else (x.Add d)
 
     let rec descentLoop x (fval:double) = 
-        printfn "Step"
         let newf = (f x)
         let math:Matrix<double> = (ddF x)
         let condh = try 
@@ -33,11 +31,8 @@ let newtonL2Eq f dF ddF (xin:Vector<double>) =
         else
             let d = math.Solve(vecg).Negate()
             if d.L2Norm() > 1e-8 then
-                printfn "%A" x
-                printfn "%A" d
                 let nx = (CreateVector.DenseOfEnumerable x)
                 let x = (innerLoop nx d f fval)
-                printfn "%A" x
                 descentLoop x newf
             else
                 (CreateVector.DenseOfEnumerable x)
@@ -46,14 +41,15 @@ let newtonL2Eq f dF ddF (xin:Vector<double>) =
 
 // Gradient Descent w/ Backtracking
 let gradientDescent f gradF x0 f0 dt0=
-    let rec descentLoop x (fval:double) dt = 
+    let rec descentLoop (x:Vector<double>) (fval:double) dt = 
         let newf = (f x)
-        let newg = (gradF x)
+        let (newg:Vector<double>) = (gradF x)
         if (Math.Abs (newf - fval)) < 1e-10 then
             printfn "Delta: %A" (Math.Abs (newf - fval))
             x
         else
-            let newx = Seq.zip x newg |> Seq.map (fun (x, dx) -> x - dt*dx)
+            let (d:Vector<double>) = dt*newg.Negate()
+            let newx = (x.Add d)
             let inter = (f newx)
             if (inter > fval) then
                 descentLoop x (fval + 1.0) (0.5*dt)
@@ -88,24 +84,21 @@ let h191 (p:Vector<double>) =
 let fex (p:Vector<double>) =
     let x = p.[0]
     let y = p.[1]
-
-    x**2. + y**2. + 100.0*(x + y - 1.)
+    x**2. + y**2. + t*((x*y + 1.)**2.)
 
 let gex (p:Vector<double>) =
     let x = p.[0]
     let y = p.[1]
-
-    let seqg = [2.*x + 100.; 
-                2.*y + 100.]
-    (CreateVector.DenseOfEnumerable seqg)
+    (CreateVector.DenseOfEnumerable [|2.*x + 2.*t*y*(x*y + 1.); 
+                                    2.*y + 2.*t*x*(x*y + 1.)|])
 
 let hex (p:Vector<double>) =
     let x = p.[0]
     let y = p.[1]
-    let seqh = array2D [[2.;
-                         0.];
-                        [0.;
-                         2.]]
+    let seqh = array2D [[2.+ 2.*t*(y**2.);
+                         2.*t*(2.*x*y + 1.)];
+                        [2.*t*(2.*x*y + 1.);
+                         2. + 2.*t*(x**2.)]]
 
     (CreateMatrix.DenseOfArray seqh)
 [<EntryPoint>]
@@ -113,7 +106,9 @@ let main argv =
     let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|0.; 0.|])
     printfn "Optimal Point: %A" result
     printfn "Optimal Value: %A" (f191 result)
-    let result = newtonL2Eq fex gex hex (CreateVector.DenseOfEnumerable [|-0.5; -0.5|])
+    let x0 = (CreateVector.DenseOfEnumerable [|1.; 1.|]) 
+    //let result = gradientDescent fex gex x0 ((fex x0) + 100.) 0.5 
+    let result = newtonL2Eq fex gex hex x0
     printfn "Optimal Point: %A" result
     printfn "Optimal Value: %A" (fex result)
     0 // return an integer exit code

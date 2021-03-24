@@ -81,6 +81,55 @@ def newtonL2Ineq(f, g, dF, ddF, xin):
         
     return x
 
+def newtonL2VIneq(f, gs, dF, ddF, xin):
+    x = xin
+    flag = False
+    breakFlag = False
+    while True:
+        F = f(x)
+        DF = dF(x)
+
+        if math.fabs(np.linalg.norm(DF)) < 1e-4:
+            break
+
+        DDF = ddF(x)
+        d = (-2e-2)*np.linalg.solve(DDF,DF)
+        whileFlag = True
+        count = 0
+        while whileFlag:
+            d = (0.5)*d
+            count += 1
+            if count > 200:
+                breakFlag = True
+                break
+
+            if math.fabs(np.linalg.norm(d)) < 1e-8:
+                breakFlag = True 
+                break
+            for i,g in enumerate(gs):
+                conVal = g(x[0]+d[0], x[1]+d[1], x[2]+d[2])
+                if ( conVal > 0):
+                    print(f"X: {x[0]+d[0]}, {x[1]+d[1]}, {x[2]+d[2]}")
+                    print(f"Constraint {i}: {conVal}")
+                    whileFlag = True
+                    break
+            whileFlag = False
+
+        if breakFlag:
+            break
+        breakFlag = False
+        flag = False
+
+        while (g(x[0]+d[0], x[1]+d[1], x[2]+d[2]) >= 0) or (f(x + d) >= F):
+            d = 0.5*d
+            if np.linalg.norm(d) < 1e-8:
+                flag = True
+                break
+            
+        x = x + d
+        
+    return x
+
 x,y = symbols('x y')
 h = ((6*x + 29)**2)*((x-1)**2) + 12*(6*x + 31)*(x-1)*y**2 + 36*y**4 
 h = x**2 + y**2 + t*h
@@ -294,54 +343,7 @@ def h213(p):
 def c213(p):
     return -1.
 
-def newtonL2VIneq(f, gs, dF, ddF, xin):
-    x = xin
-    flag = False
-    breakFlag = False
-    while True:
-        F = f(x)
-        DF = dF(x)
 
-        if math.fabs(np.linalg.norm(DF)) < 1e-4:
-            break
-
-        DDF = ddF(x)
-        d = (-2e-2)*np.linalg.solve(DDF,DF)
-        whileFlag = True
-        count = 0
-        while whileFlag:
-            d = (0.5)*d
-            count += 1
-            if count > 200:
-                breakFlag = True
-                break
-
-            if math.fabs(np.linalg.norm(d)) < 1e-8:
-                breakFlag = True 
-                break
-            for i,g in enumerate(gs):
-                conVal = g(x[0]+d[0], x[1]+d[1], x[2]+d[2])
-                if ( conVal > 0):
-                    print(f"X: {x[0]+d[0]}, {x[1]+d[1]}, {x[2]+d[2]}")
-                    print(f"Constraint {i}: {conVal}")
-                    whileFlag = True
-                    break
-            whileFlag = False
-
-        if breakFlag:
-            break
-        breakFlag = False
-        flag = False
-
-        while (g(x[0]+d[0], x[1]+d[1], x[2]+d[2]) >= 0) or (f(x + d) >= F):
-            d = 0.5*d
-            if np.linalg.norm(d) < 1e-8:
-                flag = True
-                break
-            
-        x = x + d
-        
-    return x
 
 
 x0 = np.zeros((3,))

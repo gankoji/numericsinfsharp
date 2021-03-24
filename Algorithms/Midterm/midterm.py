@@ -1,7 +1,7 @@
 import sys
 from sympy import *
 from sympy.functions.elementary.exponential import log, sqrt, exp
-from rkf45 import r8_rkf45
+#from rkf45 import r8_rkf45
 import numpy as np
 import math
 
@@ -180,6 +180,6 @@ def search():
         stop = best*(1+delta)
 
     print(f"Optimum Angle Found: {angles[idx]}")
-    print(f"Optimum Range: {best}")
+    print(f"Optimum Range: {newRange}")
 
 search()
