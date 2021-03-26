@@ -1,0 +1,3 @@
+function [g] = df(X)  A = [3 1; 0 3; -2 -3];  a = A * X;  e = exp(10 * a);
+  g = ( (sum(A .* e) + 10. * sum(A .* e .* a)) / sum(e) ...
+       - sum(a .* e) * 10. * sum(A .* e) / (sum(e))^2 )';  end
