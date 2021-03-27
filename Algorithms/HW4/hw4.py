@@ -97,7 +97,7 @@ def problem2():
     outputs = []
     nruns = int(1e5)
     for i in range(0, nruns):
-        outputs.append(randomWalkOnGraph(0, adjacencyMatrix))
+        outputs.append(randomWalkOnGraph(15, adjacencyMatrix))
 
     happinessChance = sum(outputs)/float(nruns)
     print(f"Mouse survives with {happinessChance} probability.")
@@ -109,8 +109,57 @@ def problem2():
 ## where the particle hits the boundary of thesquare for the first time. For each
 ## side of the square find the probability that it is the one being hit.
 
+## Intent here is the for the particle to be diffusing, i.e. brownian motion
+## Equations for brownian motion
+## x = random.uniform(0,1)
+## s = A*dt*x
+## dir = np.randn(Ndim)
+## dir = dir/np.linalg.norm(dir)
+## step = s*dir
+## xn = xn1 + step
+
+def brownianMotion():
+    x = np.array([1/3., 1/6.])
+    inBounds = True
+    while inBounds:
+        u = 4*random.uniform(0,1) 
+        v = np.random.randn(2)
+        v = v/np.linalg.norm(v)
+        x = x + (u*v)
+
+        # Check Bounds
+        if x[0] <= 0:
+            return 0
+        if x[0] > 1.:
+            return 1
+        if x[1] <= 0:
+            return 2
+        if x[1] > 1.:
+            return 3
+        
+## Once we have that, we loop until we get one of the coordinates to exceed the boundaries
+## Then, we just have to check which one, and monte carlo to find the probabilities
+def problem3():
+    ntrials = int(1e6)
+    dirs = np.array([0,0,0,0])
+    for i in range(0,ntrials):
+        res = brownianMotion()
+        dirs[res] += 1
+
+    dirs = dirs/ntrials
+    print(f"Probability of hitting first the Left, Right, Bottom, and Top sides: {dirs}.")
+
+#problem3()
+
 ## Problem 25.1: Using the Metropolis algorithm, simulate a Markov chain with
 ## P(x) = exp(-x), x>=0 density and transition function T(x'|x) =
 ## exp(-(x'-x)^2/2s^2)/sqrt(2\pi)s (with appropriate acceptance probability
-## A(x'|x)). Find s that minimizes K_xx(1) = E(x_m-1)(x_{m-1}-1), where x_m is the
-## state of the Markov chain at time m.
+## A(x'|x)). Find s that minimizes K_xx(1) = E[(x_m-1)(x_{m-1}-1)], where x_m is
+## the state of the Markov chain at time m.
+import math
+
+def P(x):
+    if x >= 0.:
+        return math.exp(x)
+    else:
+        return 0.
