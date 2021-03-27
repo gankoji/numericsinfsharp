@@ -78,7 +78,6 @@ def problem2():
     def randomWalkOnGraph(start, adjMat):
         terminated = False
         special = [0, 1] # Cheese is at node 0, cat at node 1
-        retval = 0 # 0 means death, 1 means cheese, success, and a happy life
         current = start
         while (not terminated):
             adjacents = findAdjacents(current, adjMat)
