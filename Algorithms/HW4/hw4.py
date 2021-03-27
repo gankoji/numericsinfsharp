@@ -19,7 +19,7 @@ def problem1():
     x = symbols('x')
     f = Piecewise((x**2, ((x >= 0) & (x <= 1))), (sqrt(2-x), ((x>1) & (x<=2))), (0, True))
     f = lambdify([x], f)
-    nsamples = int(1e5)
+    nsamples = int(1e7)
     samples = np.zeros((nsamples,))
     for i in range(0,nsamples):
         success = False
@@ -34,8 +34,6 @@ def problem1():
     bins = makeBins(0.025, 0, 2.0)
     plt.hist(samples, bins)
     plt.savefig('Problem_23_2.png')
-
-#problem1()
 
 ## Problem 24.1: A mouse's random walk on a graph
 ## Hard part here will be finding a sensible data structure for the graph
@@ -95,14 +93,12 @@ def problem2():
 
     ## MonteCarlo simulation: for (large N) runs, store results. Sum, average, boom probability. 
     outputs = []
-    nruns = int(1e5)
+    nruns = int(1e6)
     for i in range(0, nruns):
         outputs.append(randomWalkOnGraph(15, adjacencyMatrix))
 
     happinessChance = sum(outputs)/float(nruns)
     print(f"Mouse survives with {happinessChance} probability.")
-
-#problem2()
 
 ## Problem 24.5 Consider a diffusing particle inside the square 0<x,y<1. The
 ## particle starts at x(0) =1/3,y(0) =1/6. Consider the moment and position when and
@@ -140,7 +136,7 @@ def brownianMotion():
 ## Once we have that, we loop until we get one of the coordinates to exceed the boundaries
 ## Then, we just have to check which one, and monte carlo to find the probabilities
 def problem3():
-    ntrials = int(1e6)
+    ntrials = int(1e7)
     dirs = np.array([0,0,0,0])
     for i in range(0,ntrials):
         res = brownianMotion()
@@ -149,17 +145,59 @@ def problem3():
     dirs = dirs/ntrials
     print(f"Probability of hitting first the Left, Right, Bottom, and Top sides: {dirs}.")
 
-#problem3()
-
 ## Problem 25.1: Using the Metropolis algorithm, simulate a Markov chain with
 ## P(x) = exp(-x), x>=0 density and transition function T(x'|x) =
 ## exp(-(x'-x)^2/2s^2)/sqrt(2\pi)s (with appropriate acceptance probability
 ## A(x'|x)). Find s that minimizes K_xx(1) = E[(x_m-1)(x_{m-1}-1)], where x_m is
 ## the state of the Markov chain at time m.
 import math
+from random import normalvariate
 
 def P(x):
-    if x >= 0.:
-        return math.exp(x)
+    if (x >= 0.) and (x < 100.):
+        return math.exp(-x)
     else:
         return 0.
+
+def Accept(x,xp):
+    p1 = P(x)
+    p2 = P(xp)
+    return min(1, p2/p1)
+
+def expectation(chain):
+    sumdiffs = 0.
+    n = len(chain)
+    for i in range(1,n):
+        sumdiffs += (chain[i]-1)*(chain[i-1]-1)
+    return sumdiffs/n
+
+def markovChain(s, x0):
+    nsteps = int(1e6)
+    x = np.zeros((nsteps,))
+    x[0] = x0
+    for i in range(1, nsteps):
+        xp = x[i-1] + normalvariate(0., s)
+        A = Accept(x[i-1], xp)
+        u = random.uniform(0,1)
+        if A >= u:
+            x[i] = xp
+        else:
+            x[i] = x[i-1]
+
+    return expectation(x)
+
+def problem4():
+    sigmas = np.linspace(0.1, 5, 50)
+    exs = np.zeros(sigmas.shape)
+    for i,s in enumerate(sigmas):
+        exs[i] = markovChain(s, 1.)
+
+    ib = np.argmin(exs)
+    bestEx = np.min(exs)
+    bestS = sigmas[ib]
+    print(f"Minimum expectation: {bestEx}, at Sigma {bestS}")
+
+problem1()
+problem2()
+problem3()
+problem4()
