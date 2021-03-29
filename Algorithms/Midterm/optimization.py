@@ -60,7 +60,6 @@ def newtonL2Ineq(f, g, dF, ddF, xin):
     x = xin
     flag = False
     while True:
-        print("Step")
         F = f(x)
         DF = dF(x)
 
@@ -68,6 +67,8 @@ def newtonL2Ineq(f, g, dF, ddF, xin):
             break
 
         DDF = ddF(x)
+        if np.isnan(DDF).any() or (np.linalg.cond(DDF) >= 100.):
+            break
         d = -np.linalg.solve(DDF,DF)
         if (g(x+d) >= 0) and flag:
             break

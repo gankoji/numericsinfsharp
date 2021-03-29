@@ -236,11 +236,9 @@ def problem4():
     print(f"Solved! Optimal point: ({x[0]}, {x[1]}, {x[2]},{x[3]}).")
     print(f"Optimal Function Value: {f4(x)}.")
 
-problem4()
+#problem4()
 
 def problem5():
-    print("Hey, we're here!")
-
     def problem5symbolics():
         x1, x2, x3, x4, x5, x6, x7, x8 = symbols('x1 x2 x3 x4 x5 x6 x7 x8')
         y1, y2, y3, y4, y5, y6, y7, y8 = symbols('y1 y2 y3 y4 y5 y6 y7 y8')
@@ -248,17 +246,79 @@ def problem5():
         xs = [x1, x2, x3, x4, x5, x6, x7, x8]
         ys = [y1, y2, y3, y4, y5, y6, y7, y8]
 
-        f5 = 0.
+        fs = []
         for i in range(0,7):
-            for j in range(i,8):
-                f5 += 1/((xs[j] - xs[i])**2 + (ys[j]-ys[i])**2)
+            for j in range(i+1,8):
+                inter = 1/((xs[j] - xs[i])**2 + (ys[j]-ys[i])**2 + 1)
+                fs.append(inter)
 
         gs = []
         for x,y in zip(xs,ys):
             gs.append(x**2 + y**2 - 1)
 
-        print(f5)
-        print(gs)
+        f = sum(fs) -(1/t)*log(-sum(gs))
+        
+        # Build Gradient
+        dfs = []
+        for i in range(0,8):
+            inter = diff(f,xs[i])
+            dfs.append(inter)
 
-    problem5symbolics()
+        for i in range(0,8):
+            inter = diff(f,ys[i])
+            dfs.append(inter)
+
+        ddfs = []
+        for i in range(0,16):
+            interddf = []
+            for j in range(0,16):
+                if j < 8:
+                    inter = diff(dfs[i],xs[j])
+                    interddf.append(inter)
+                else:
+                    inter = diff(dfs[i], ys[j-8])
+                    interddf.append(inter)
+            ddfs.append(interddf)
+
+        args = [x1,x2,x3,x4,x5,x6,x7,x8,y1,y2,y3,y4,y5,y6,y7,y8]
+        f = lambdify(args, f)
+        g = lambdify(args, sum(gs))
+        df = lambdify(args, dfs)
+        ddf = lambdify(args, ddfs)
+        return f, g, df, ddf
+
+    f, g, df, ddf = problem5symbolics()
+
+    def f5(p):
+        return f(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],
+                 p[8],p[9],p[10],p[11],p[12],p[13],p[14],p[15])
+    def g5(p):
+        return g(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],
+                 p[8],p[9],p[10],p[11],p[12],p[13],p[14],p[15])
+    def df5(p):
+        return np.array(df(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],
+                 p[8],p[9],p[10],p[11],p[12],p[13],p[14],p[15]))
+    def ddf5(p):
+        return np.array(ddf(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],
+                 p[8],p[9],p[10],p[11],p[12],p[13],p[14],p[15]))
+
+    print(f"Question 5: Inequality Constrained Minimization")
+    print(f"Optimizing via Newton's Method, starting at 0 vec.")
+    x0 = np.zeros((16,))
+    # Let's initialize a little more smartly
+    # 2pi/8 distance between each point
+    # Put them on the boundary
+    dt = 2*math.pi/8.
+    t0 = math.pi/4.
+    for i in range(0,8):
+        ti = t0 + i*dt
+        x = 0.9*math.cos(ti)
+        y = 0.9*math.sin(ti)
+        x0[i] = x
+        x0[i+8] = y
+
+    x = newtonL2Ineq(f5, g5, df5, ddf5, x0)
+    print(f"Solved! Optimal point: ({x}).")
+    print(f"Optimal Function Value: {f5(x)}.")
+
 problem5()
