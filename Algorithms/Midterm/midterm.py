@@ -5,6 +5,7 @@ import numpy as np
 import math
 from optimization import *
 
+t = 100000.
 ## Problem 1: Unconstrained Optimization
 def problem1():
     x,y = symbols('x y')
@@ -43,7 +44,7 @@ def problem1():
     print(f"Solved! Optimal point: ({x[0]}, {x[1]}).")
     print(f"Optimal Function Value: {f1(x)}.")
 
-#problem1()
+problem1()
 
 ## Problem 2: Projectile Range Optimization
 ## Define state: [x y u v]
@@ -106,7 +107,7 @@ def problem2():
     
     search()
 
-#problem2()
+problem2()
 
 ## Problem 3: Constrained Minimization
 # Minimize f(x,y,z) = (x-1)**2 + (y-1)**2 + (z-5)**2
@@ -159,10 +160,9 @@ def problem3():
     print(f"Solved! Optimal point: ({x[0]}, {x[1]}, {x[2]}).")
     print(f"Optimal Function Value: {f3(x)}.")
 
-#problem3()
+problem3()
 
 ## Problem 4: Inequality *and* Equality Constrained Minimization
-t = 100000.
 def problem4Symbolics():
     x1,y1,x2,y2 = symbols('x1 y1 x2 y2')
     f = 3*y2 - 2*y1
@@ -236,7 +236,7 @@ def problem4():
     print(f"Solved! Optimal point: ({x[0]}, {x[1]}, {x[2]},{x[3]}).")
     print(f"Optimal Function Value: {f4(x)}.")
 
-#problem4()
+problem4()
 
 def problem5():
     def problem5symbolics():
@@ -249,14 +249,16 @@ def problem5():
         fs = []
         for i in range(0,7):
             for j in range(i+1,8):
-                inter = 1/((xs[j] - xs[i])**2 + (ys[j]-ys[i])**2 + 1)
+                inter = 1/((xs[j] - xs[i])**2 + (ys[j]-ys[i])**2 + .0000001)
                 fs.append(inter)
 
         gs = []
-        for x,y in zip(xs,ys):
-            gs.append(x**2 + y**2 - 1)
+        for i in range(0,8):
+            gs.append(xs[i]**2 + ys[i]**2 - 1)
 
-        f = sum(fs) -(1/t)*log(-sum(gs))
+        f = sum(fs)
+        for i in range(0,8):
+            f = f -(1/t)*log(-gs[i])
         
         # Build Gradient
         dfs = []
@@ -273,7 +275,7 @@ def problem5():
             interddf = []
             for j in range(0,16):
                 if j < 8:
-                    inter = diff(dfs[i],xs[j])
+                    inter = diff(dfs[i], xs[j])
                     interddf.append(inter)
                 else:
                     inter = diff(dfs[i], ys[j-8])
@@ -312,8 +314,8 @@ def problem5():
     t0 = math.pi/4.
     for i in range(0,8):
         ti = t0 + i*dt
-        x = 0.9*math.cos(ti)
-        y = 0.9*math.sin(ti)
+        x = 0.95*math.cos(ti)
+        y = 0.95*math.sin(ti)
         x0[i] = x
         x0[i+8] = y
 

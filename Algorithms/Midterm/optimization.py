@@ -26,7 +26,6 @@ def gradientDescent (f, gradF, x0, f0, dt0):
 
     return x
 
-t = 100000.
 def newtonL2Eq(f, dF, ddF, xin):
     x = xin
     while True:
@@ -68,6 +67,7 @@ def newtonL2Ineq(f, g, dF, ddF, xin):
 
         DDF = ddF(x)
         if np.isnan(DDF).any() or (np.linalg.cond(DDF) >= 100.):
+            print("Bad Hessian")
             break
         d = -np.linalg.solve(DDF,DF)
         if (g(x+d) >= 0) and flag:
