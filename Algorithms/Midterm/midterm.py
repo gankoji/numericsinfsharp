@@ -171,14 +171,14 @@ def problem4Symbolics():
     g12 = y2 - x2
     g21 = x1**2 + y1**2 - 4*y1
     g22 = x2**2 + y2**2 - 4*y2
-    h = f + t*(h**2) - (1/t)*log(-g11) - (1/t)*log(-g12) - (1/t)*log(-g21) - (1/t)*log(-g22)
-    dhdx = diff(h,x1)
-    dhdy = diff(h,y1)
+    h = f + t*(h**2) - (1/t)*(log(-(g11 + g12 + g21 + g22)))
+    dhdx1 = diff(h,x1)
+    dhdy1 = diff(h,y1)
     dhdx2 = diff(h,x2)
     dhdy2 = diff(h,y2)
-    gradH = [dhdx, dhdy, dhdx2, dhdy2]
-    hessH = [[diff(dhdx,x1), diff(dhdx, y1), diff(dhdx, x2), diff(dhdx, y2)],
-             [diff(dhdy,x1), diff(dhdy, y1), diff(dhdy, x2), diff(dhdy, y2)],
+    gradH = [dhdx1, dhdy1, dhdx2, dhdy2]
+    hessH = [[diff(dhdx1,x1), diff(dhdx1, y1), diff(dhdx1, x2), diff(dhdx1, y2)],
+             [diff(dhdy1,x1), diff(dhdy1, y1), diff(dhdy1, x2), diff(dhdy1, y2)],
              [diff(dhdx2,x1), diff(dhdx2, y1), diff(dhdx2, x2), diff(dhdx2, y2)],
              [diff(dhdy2,x1), diff(dhdy2, y1), diff(dhdy2, x2), diff(dhdy2, y2)]]
     args = [x1,y1,x2,y2]
@@ -189,7 +189,7 @@ def problem4Symbolics():
     g12 = lambdify(args, g12)
     g21 = lambdify(args, g21)
     g22 = lambdify(args, g22) 
-    return h, dH, ddH, g11, g12, g21    
+    return h, dH, ddH, g11, g12, g21, g22 
 
 def problem4():
     h, dH, ddH, g11, g12, g21, g22 = problem4Symbolics()
@@ -241,4 +241,24 @@ problem4()
 def problem5():
     print("Hey, we're here!")
 
+    def problem5symbolics():
+        x1, x2, x3, x4, x5, x6, x7, x8 = symbols('x1 x2 x3 x4 x5 x6 x7 x8')
+        y1, y2, y3, y4, y5, y6, y7, y8 = symbols('y1 y2 y3 y4 y5 y6 y7 y8')
+
+        xs = [x1, x2, x3, x4, x5, x6, x7, x8]
+        ys = [y1, y2, y3, y4, y5, y6, y7, y8]
+
+        f5 = 0.
+        for i in range(0,7):
+            for j in range(i,8):
+                f5 += 1/((xs[j] - xs[i])**2 + (ys[j]-ys[i])**2)
+
+        gs = []
+        for x,y in zip(xs,ys):
+            gs.append(x**2 + y**2 - 1)
+
+        print(f5)
+        print(gs)
+
+    problem5symbolics()
 problem5()
