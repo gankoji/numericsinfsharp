@@ -66,7 +66,7 @@ def newtonL2Ineq(f, g, dF, ddF, xin):
             break
 
         DDF = ddF(x)
-        if np.isnan(DDF).any() or (np.linalg.cond(DDF) >= 100.):
+        if np.isnan(DDF).any() or (np.linalg.cond(DDF) >= 10000.):
             print("Bad Hessian")
             break
         d = -np.linalg.solve(DDF,DF)
