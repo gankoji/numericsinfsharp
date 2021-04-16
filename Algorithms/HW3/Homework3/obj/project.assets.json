@@ -1311,14 +1311,14 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW3/Homework3/Homework3.fsproj",
+      "projectUniqueName": "/Users/jbailey/PersonalWorkspace/numericsinfsharp/Algorithms/HW3/Homework3/Homework3.fsproj",
       "projectName": "Homework3",
-      "projectPath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW3/Homework3/Homework3.fsproj",
+      "projectPath": "/Users/jbailey/PersonalWorkspace/numericsinfsharp/Algorithms/HW3/Homework3/Homework3.fsproj",
       "packagesPath": "/Users/jbailey/.nuget/packages/",
-      "outputPath": "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW3/Homework3/obj/",
+      "outputPath": "/Users/jbailey/PersonalWorkspace/numericsinfsharp/Algorithms/HW3/Homework3/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/jbailey/Google Drive/Workspace/numericsinfsharp/Algorithms/HW3/Homework3/NuGet.Config",
+        "/Users/jbailey/PersonalWorkspace/numericsinfsharp/Algorithms/HW3/Homework3/NuGet.Config",
         "/Users/jbailey/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
