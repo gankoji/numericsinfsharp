@@ -1,114 +1,84 @@
 // Learn more about F# at http://docs.microsoft.com/dotnet/fsharp
 
+module Homework4
+
 open System
 open System.IO
-open FSharp.Plotly
-open MathNet.Numerics.LinearAlgebra
 
-let t = 1000.
-let newtonL2Eq f dF ddF (xin:Vector<double>) =
-    let rec innerLoop (x:Vector<double>) (d:Vector<double>) f (fval:double) =
-        if (f (x.Add d)) >= fval then 
-            if (d.L2Norm() > 1e-6) then 
-                (innerLoop x (0.5*d) f fval)
-            else (x.Add d)
-        else (x.Add d)
-
-    let rec descentLoop x (fval:double) = 
-        let newf = (f x)
-        let math:Matrix<double> = (ddF x)
-        let condh = try 
-                        math.ConditionNumber()
-                    with
-                        | ex -> printfn "%A" ex; 1.1e9
-        let vecg:Vector<double> = (dF x)
-        let normg = vecg.L2Norm()
-        if ((Math.Abs (newf - fval)) < 1e-6) || (normg < 1e-8) || (condh > 1e9) then
-            printfn "Delta: %A" (Math.Abs (newf - fval))
-            printfn "NormG: %A" normg
-            printfn "CondH: %A" condh
-            (CreateVector.DenseOfEnumerable x)
+let f232 x =
+    if (x > 0.) && (x <= 2.) then
+        if (x <=1.) then
+            x**2.
         else
-            let d = math.Solve(vecg).Negate()
-            if d.L2Norm() > 1e-8 then
-                let nx = (CreateVector.DenseOfEnumerable x)
-                let x = (innerLoop nx d f fval)
-                descentLoop x newf
-            else
-                (CreateVector.DenseOfEnumerable x)
+            Math.Sqrt(2. - x)
+    else
+        0.
 
-    descentLoop xin ((f xin) + 10000.)
+// Next we need to do the sampling
+// Process is the same as the python code
+// Sample two random numbers. If the second is less than
+// the 'sampled' function, evaluated at the first number, we accept the first 
+// number as the sample of the distribution we're after. 
+// If we don't accept it, we recurse until we get a suitable sample. 
+let rand = Random()
+let rec oneSample ()=
+    let u1 = rand.NextDouble()*2.
+    let u2 = rand.NextDouble()
+    if u2 <= (f232 u1) then
+        u1
+    else (oneSample ())
 
-// Gradient Descent w/ Backtracking
-let gradientDescent f gradF x0 f0 dt0=
-    let rec descentLoop (x:Vector<double>) (fval:double) dt = 
-        let newf = (f x)
-        let (newg:Vector<double>) = (gradF x)
-        if (Math.Abs (newf - fval)) < 1e-10 then
-            printfn "Delta: %A" (Math.Abs (newf - fval))
-            x
+
+let monteCarloSamples (nSamples:int) =
+    // Use oneSample above to get to nSamples
+    let samples = []
+    let rec sample samples acc =
+        if acc = nSamples then
+            samples
         else
-            let (d:Vector<double>) = dt*newg.Negate()
-            let newx = (x.Add d)
-            let inter = (f newx)
-            if (inter > fval) then
-                descentLoop x (fval + 1.0) (0.5*dt)
-            else 
-                let newt = 1.1*dt
-                descentLoop newx newf newt
+            (sample (List.append [(oneSample ())] samples) (acc + 1))
+    (sample samples 0)
 
-    descentLoop x0 f0 dt0
+// So for 24.1, the question becomes one of keeping the original method
+// or figuring out a slightly more efficient one. Let's start with the
+// original method.
+let adjacencyMatrix = array2D [[0; 0; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0];
+                               [0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0];
+                               [0; 1; 0; 1; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0];
+                               [0; 0; 1; 0; 0; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 0];
+                               [1; 0; 0; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0];
+                               [0; 0; 0; 0; 1; 0; 1; 0; 0; 1; 0; 0; 0; 0; 0; 0];
+                               [0; 0; 1; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0];
+                               [0; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 1; 0; 0; 0; 0];
+                               [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 1; 0; 0; 0];
+                               [0; 0; 0; 0; 0; 1; 0; 0; 0; 0; 0; 0; 0; 1; 0; 0];
+                               [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 1; 0; 0; 0; 0];
+                               [0; 0; 0; 0; 0; 0; 0; 1; 0; 0; 1; 0; 0; 0; 0; 1];
+                               [0; 0; 0; 0; 0; 0; 0; 0; 1; 0; 0; 0; 0; 1; 0; 0];
+                               [0; 0; 0; 0; 0; 0; 0; 0; 0; 1; 0; 0; 1; 0; 1; 0];
+                               [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 1; 0; 1];
+                               [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 1; 0; 0; 1; 0]]
 
-let f191 (p:Vector<double>) =
-    let x = p.[0]
-    let y = p.[1]
-    x**2. + 3600000.0*y**4. + 100000.0*y**2.*(x - 1.)*(72.*x + 372.) + y**2. + 100000.0*(x - 1.)**2.*(6.*x + 2.9)**2.
+let findAdjacents node (adjMat:array<int> [,]) =
+    let adjList = (Array.toList adjMat.[node,*])
+    let rec searchList list acc =
+        match list with
+            a::b -> if (a > 0) then
+                        acc::(searchList b (acc + 1))
+                    else
+                        (searchList b (acc + 1))
+          | _ -> []
 
-let g191 (p:Vector<double>) =
-    let x = p.[0]
-    let y = p.[1]
-    let seqg = [2.*x + 7200000.0*y**2.*(x - 1.) + 100000.0*y**2.*(72.*x + 372.) + 100000.0*(x - 1.)**2.*(72.*x + 348.) + (6.*x + 29.)**2.*(200000.0*x - 200000.0); 
-                14400000.0*y**3. + 200000.0*y*(x - 1.)*(72.*x + 372.) + 2.*y]
-    (CreateVector.DenseOfEnumerable seqg)
+    (searchList adjList 0)
 
-let h191 (p:Vector<double>) =
-    let x = p.[0]
-    let y = p.[1]
-    let seqh = array2D [[14400000.0*y**2. + 7200000.0*(x - 1.)**2. + 200000.0*(6.*x + 29.)**2. + 2.*(72.*x + 348.)*(200000.0*x - 200000.0) + 2.;
-                 14400000.0*y*(x - 1.) + 200000.0*y*(72.*x + 372.)];
-                [14400000.0*y*(x - 1.) + 200000.0*y*(72.*x + 372.);
-                 43200000.0*y**2. + (72.*x + 372.)*(200000.0*x - 200000.0) + 2.]]
-
-    (CreateMatrix.DenseOfArray seqh)
-
-let fex (p:Vector<double>) =
-    let x = p.[0]
-    let y = p.[1]
-    x**2. + y**2. + t*((x*y + 1.)**2.)
-
-let gex (p:Vector<double>) =
-    let x = p.[0]
-    let y = p.[1]
-    (CreateVector.DenseOfEnumerable [|2.*x + 2.*t*y*(x*y + 1.); 
-                                    2.*y + 2.*t*x*(x*y + 1.)|])
-
-let hex (p:Vector<double>) =
-    let x = p.[0]
-    let y = p.[1]
-    let seqh = array2D [[2.+ 2.*t*(y**2.);
-                         2.*t*(2.*x*y + 1.)];
-                        [2.*t*(2.*x*y + 1.);
-                         2. + 2.*t*(x**2.)]]
-
-    (CreateMatrix.DenseOfArray seqh)
 [<EntryPoint>]
 let main argv =
-    let result = newtonL2Eq f191 g191 h191 (CreateVector.DenseOfEnumerable [|0.; 0.|])
-    printfn "Optimal Point: %A" result
-    printfn "Optimal Value: %A" (f191 result)
-    let x0 = (CreateVector.DenseOfEnumerable [|1.; 1.|]) 
-    //let result = gradientDescent fex gex x0 ((fex x0) + 100.) 0.5 
-    let result = newtonL2Eq fex gex hex x0
-    printfn "Optimal Point: %A" result
-    printfn "Optimal Value: %A" (fex result)
+    // Problem 23.2: Monte-Carlo sampling of
+    // an arbitrary distribution
+    printfn "%A" (monteCarloSamples 50)
+    // While the code is somewhat different (recursion vs looping)
+    // They're very similar lengths: 25 lines in python, 21 in F#
+
+    // Next up: 24.1, a mouse's random walk 
+    printfn "%A" adjacencyMatrix.[1,*]
     0 // return an integer exit code

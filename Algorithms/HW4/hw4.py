@@ -19,7 +19,7 @@ def problem1():
     x = symbols('x')
     f = Piecewise((x**2, ((x >= 0) & (x <= 1))), (sqrt(2-x), ((x>1) & (x<=2))), (0, True))
     f = lambdify([x], f)
-    nsamples = int(1e7)
+    nsamples = int(1e4)
     samples = np.zeros((nsamples,))
     for i in range(0,nsamples):
         success = False
@@ -198,5 +198,5 @@ def problem4():
 
 problem1()
 problem2()
-problem3()
-problem4()
+#problem3()
+#problem4()
