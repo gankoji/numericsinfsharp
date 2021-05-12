@@ -122,7 +122,7 @@ def problem2(r):
     print(f"Radius of feasible region is {r}.")
     print(f"Optimizing via Newton's Method, starting at {x0[0], x0[1], x0[2]}.")
 
-    x = newtonIneq(f213, GS, g213, h213, x0, 5e-7)
+    x = newtonIneq(f213, GS, g213, h213, x0, 1e-6)
     print(f"Solved! Optimal point: ({x[0]}, {x[1]}, {x[2]}).")
     print(f"Optimal Function Value: {f213(x,1e9)}.")
 
