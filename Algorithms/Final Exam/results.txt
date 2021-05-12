@@ -1,0 +1,17 @@
+Problem 1: See plot.
+Problem 2: Inequality Constrained Minimization
+Radius of feasible region is 1.0.
+Optimizing via Newton's Method, starting at (-0.2, 0.9, 0.3).
+Solved! Optimal point: (-0.22825512982959717, 0.9382377470546449, 0.2600183180239445).
+Optimal Function Value: -2.2490133011561944.
+Radius of feasible region is 2.0.
+Optimizing via Newton's Method, starting at (-0.2, 1.9, 0.3).
+Solved! Optimal point: (-0.270317876569032, 1.9596238542395725, 0.2946228020745714).
+Optimal Function Value: -6.285796976818931.
+Radius of feasible region is 3.0.
+Optimizing via Newton's Method, starting at (-0.2, 2.9, 0.3).
+Solved! Optimal point: (-0.2879513265202636, 2.970328282511873, 0.3069754512419446).
+Optimal Function Value: -12.300137429766425.
+Problem 3: The probability that a full collection is obtained from 500 boxes or less: 0.030831124544799172.
+Problem 4: The probability that X>36 is 0.0
+Problem 5: See plot

@@ -63,9 +63,6 @@ def problem1():
     fig, ax = plt.subplots()
     ax.add_collection(lc)
     ax.autoscale()
-    plt.title("Segment plot of optimal set of points.")
-    plt.xlabel("X")
-    plt.ylabel("Y")
     plt.savefig("p1.png")
 
 
@@ -221,9 +218,7 @@ def problem4():
     xs,ys = buildCDF(n)
     cdf_interp = interpolate.interp1d(xs,ys)
     try:
-        ## We want p(x>36), while the cdf gives p(x<=36). 
-        ## 1- p(x<=36) = p(x>36)
-        p36 = 1.0 - cdf_interp(36)
+        p36 = cdf_interp(36)
         print(p36)
     except ValueError:
         print("None of our samples reach 36. Thus, our estimate for P(X>36) is zero.")
@@ -232,83 +227,13 @@ def problem4():
     plt.plot(xs,ys)
     plt.axvline(36)
     plt.text(26,0.5,f"P(X>36):{p36}")
-    plt.savefig("p4_cdf.png")
-
-## Problem 5: Metropolis-Hastings simulation of a Markov Chain
-## First, our sampling distribution, as given
-def P(x):
-    return math.exp(-0.5*x**2)/math.sqrt(2*math.pi)
-
-## Next, the proposal distribution, just as given
-def T(x,xp):
-    if math.fabs(xp-x) < 1:
-        return (xp-x+1.)/2.
-    else:
-        return 0.
-
-## Then, we calculate the acceptance probability of a given step
-def A(x,xp):
-    if (T(xp,x) < 1e-5) or (P(x) < 1e-5):
-        return 1. 
-    else:
-        temp = P(xp)/P(x)*T(x,xp)/T(xp,x)
-        return min(1,temp)
-
-## Take a step along the chain
-def mcmc_step(x):
-    # Generate a step (this is arbitrary, and affects the outcome significantly at small sample sizes)
-    step = 0.5*(np.random.uniform(0,1) - 0.5)
-    xp = x + step
-    # Check whether our step is accepted, per our acceptance prob above
-    u = np.random.uniform(0,1)
-    if (u < A(x,xp)):
-        return xp
-    else:
-        return x
-
-def problem5():
-    ## Parameters.
-    m = 60 # points in the autocorrelation function to approximate
-    samples = int(1e7) # samples to use in the approximation
-    throwout = int(1e3) # number of samples to toss out at the beginning
-    n = throwout+samples # total number we'll take
-
-    ## Data storage
-    ks = np.zeros((m,))
-    xs = np.zeros((n,))
-
-    ## Do the sampling of the chain 
-    for i in range(1,n):
-        xs[i] = mcmc_step(xs[i-1])
-        if i > throwout:
-            for j in range(0,m):
-                ks[j] += xs[i]*xs[i-j]
-
-    ## Samples in hand, calculate our results
-    ks = ks/samples
-    
-    ## Plot the chain action
-    plt.plot(xs)
-    plt.title("Markov Chain Action")
-    plt.xlabel("Sample instance (discrete time)")
-    plt.ylabel("Chain state")
-    plt.savefig("p5_chainstate.png")
-
-    ## Plot the autocorrelation function of interest
-    plt.figure()
-    plt.plot(ks)
-    plt.title("Autocorrelation of Markov Chain")
-    plt.xlabel("M")
-    plt.ylabel("$E(x_nx_{n-m})$")
-    plt.savefig("p5_autocorr.png")
-
+    plt.show()
 # Each problem is defined as a function above. Here we actually run them!
 # (This just lets me easily run one at a time while I'm developing the solution)
 
-problem1()
-problem2(1.)
-problem2(2.)
-problem2(3.)
+# problem1()
+# problem2(1.)
+# problem2(2.)
+# problem2(3.)
 # problem3()
-# problem4()
-# problem5()
+problem4()
