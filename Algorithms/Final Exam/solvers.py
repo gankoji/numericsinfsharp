@@ -24,51 +24,6 @@ def gradientDescent (f, gradF, x0, f0, dt0, tol):
 
     return x
 
-def newtonL2VIneq(f, gs, dF, ddF, xin, tol, t):
-    x = xin
-    breakFlag = False
-    while True:
-        F = f(x)
-        DF = dF(x)
-
-        if math.fabs(np.linalg.norm(DF)) < 1e-4:
-            break
-
-        DDF = ddF(x)
-        d = (-2e-2)*np.linalg.solve(DDF,DF)
-        whileFlag = True
-        count = 0
-        while whileFlag:
-            d = (0.5)*d
-            count += 1
-            if count > 200:
-                breakFlag = True
-                break
-
-            if math.fabs(np.linalg.norm(d)) < tol*math.sqrt(t):
-                breakFlag = True 
-                break
-
-            ## Need to change this
-            ## if any constraint is greater than 0
-            ## cut step size in half
-            for i,g in enumerate(gs):
-                conVal = g(x[0]+d[0], x[1]+d[1], x[2]+d[2])
-
-        if breakFlag:
-            break
-        breakFlag = False
-
-        while (g(x[0]+d[0], x[1]+d[1], x[2]+d[2]) >= 0) or (f(x + d) >= F):
-            d = 0.5*d
-            if np.linalg.norm(d) < 1e-8:
-                flag = True
-                break
-            
-        x = x + d
-        
-    return x
-
 def newtonIneq(f,gs, dF, ddF, xin, tol):
     x = xin
     t = 1.
