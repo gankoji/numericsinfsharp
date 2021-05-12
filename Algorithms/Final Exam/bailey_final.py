@@ -1,4 +1,3 @@
-import sympy
 import numpy as np
 import math
 import matplotlib.pyplot as plt
@@ -126,6 +125,147 @@ def problem2(r):
     print(f"Solved! Optimal point: ({x[0]}, {x[1]}, {x[2]}).")
     print(f"Optimal Function Value: {f213(x,1e9)}.")
 
-problem2(1.)
-problem2(2.)
-problem2(3.)
+## Problem 3: Trading cards in cookie boxes
+from random import random
+from scipy import interpolate
+def problem3():
+    ## The approach is straightforward
+    ## We build the PMF for each N by monte carlo sampling
+    ## Having the PMF, we can directly answer part 1, and integrate/sum
+    ## it to get the answer for part 2
+
+    ## In true programmer fashion, our cards are the integers 0-99
+    def getCard():
+        temp = 100*random() # a float between 0.00 and 99.999999...
+        return int(temp)
+
+    ## For a single run of N boxes
+    ## Get N cards, increment the number of each card found
+    ## Check for any zeros in our set. If any, we have failed to
+    ## get a full set. Otherwise, we have succeeded. 
+    def runTrial(N):
+        cards = np.zeros((100,))
+        for i in range(0,N):
+            card = getCard()
+            cards[card] += 1
+
+        return not (np.any(cards == 0))
+
+    ## Finally, build the PMF.
+    ## Let's go from 100 to 1000 for now
+    ## Obviously, we can't get a full set with less than 100... 
+    probs = []
+    numTrials = int(1e4)
+    ns = np.logspace(2,4,200,dtype=int)
+    for n in ns:
+        prob = 0.00
+        for m in range(0,numTrials):
+            prob += float(runTrial(n))
+
+        prob = prob/numTrials
+        probs.append(prob)
+    pmf = np.array(probs)
+    pmf = pmf/np.sum(pmf)
+    cmf = np.zeros(pmf.shape)
+    for i in range(0,len(cmf)):
+        cmf[i] = np.sum(pmf[0:i+1])
+
+    plt.plot(ns,pmf)
+    plt.xlabel("k, Number of cookie boxes")
+    plt.ylabel("Probability of full set")
+    plt.title("Probability Mass Function p(N=k)")
+    plt.savefig("p3_pmf.png")
+
+    plt.figure()
+    plt.plot(ns,cmf)
+    plt.xlabel("k, Number of cookie boxes")
+    plt.ylabel("Probability of full set")
+    plt.title("Cumulative Distribution Function p(N<=k)")
+    plt.savefig("p3_cmf.png")
+
+    ## Finally, let's answer the cumulative probability question
+    ## First, build an interpolation object with SciPy's handy utility class
+    cmf_interp = interpolate.interp1d(ns, cmf)
+
+    ## Next, get the answer for N=500
+    p500 = cmf_interp(500)
+
+    ## Finally, print it out nice and pretty
+    print(f"The probability that a full collection is obtained from 500 boxes or less: {p500}.")
+    plt.show()
+
+
+## Problem 4: A sum of IID RVs
+def problem4():
+    ## Again, a very simple approach. 
+    ## Sample X directly, 
+    def getX():
+        # Generate 48 IID uniform samples
+        xs = np.random.uniform(0,1,size=48)
+        return np.sum(xs)
+
+    ## and build it's statistics via a monte carlo approach.
+    def buildCDF(n):
+        xs = np.zeros((n,))
+        for i in range(0,n):
+            xs[i] = getX()
+
+        xs = np.sort(xs)
+        ys = np.linspace(0,1,n)
+        return xs, ys
+
+    n = int(1e8)
+    xs,ys = buildCDF(n)
+    cdf_interp = interpolate.interp1d(xs,ys)
+    try:
+        ## We want p(x>36), while the cdf gives p(x<=36). 
+        ## 1- p(x<=36) = p(x>36)
+        p36 = 1.0 - cdf_interp(36)
+        print(p36)
+    except ValueError:
+        print("None of our samples reach 36. Thus, our estimate for P(X>36) is zero.")
+        p36 = 0.0
+    plt.figure()
+    plt.plot(xs,ys)
+    plt.axvline(36)
+    plt.text(26,0.5,f"P(X>36):{p36}")
+    plt.savefig("p4_cdf.png")
+
+## Problem 5: Metropolis-Hastings simulation of a Markov Chain
+## First, since we're forbidden to use a normal distribution sampler, we must build our own
+def normalSample(n):
+    if (n%2 == 1):
+        # only support even numbers of samples, for simplicity
+        n = n+1
+    ## We use here the Box-Muller algorithm, as shown on pp 27 of the course notes
+    ns = np.zeros((n,))
+    for i in range(0,n//2):
+        u = np.random.uniform(0,1,size=2)
+        r = math.sqrt(-2.*math.log(u[0]))
+        ns[2*i] = r*math.cos(2*math.pi*u[1])
+        ns[2*i+1] = r*math.sin(2*math.pi*u[1])
+
+    return ns
+
+def problem5():
+    ## Quickly verify our results
+    n = int(1e6)
+    ns = normalSample(n)
+    plt.hist(ns, bins=10,density=True)
+    plt.savefig("p5_nhist.png")
+
+    ns = np.sort(ns)
+    xs = np.linspace(0,1,n)
+    plt.figure()
+    plt.plot(ns,xs)
+    plt.savefig("p5_ncdf.png")
+# Each problem is defined as a function above. Here we actually run them!
+# (This just lets me easily run one at a time while I'm developing the solution)
+
+# problem1()
+# problem2(1.)
+# problem2(2.)
+# problem2(3.)
+# problem3()
+# problem4()
+problem5()
