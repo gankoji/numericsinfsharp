@@ -199,6 +199,7 @@ def problem3():
 
 
 ## Problem 4: A sum of IID RVs
+from scipy import stats
 def problem4():
     ## Again, a very simple approach. 
     ## Sample X directly, 
@@ -217,8 +218,9 @@ def problem4():
         ys = np.linspace(0,1,n)
         return xs, ys
 
-    n = int(1e8)
+    n = int(1e6)
     xs,ys = buildCDF(n)
+
     cdf_interp = interpolate.interp1d(xs,ys)
     try:
         ## We want p(x>36), while the cdf gives p(x<=36). 
@@ -234,6 +236,35 @@ def problem4():
     plt.text(26,0.5,f"P(X>36):{p36}")
     plt.savefig("p4_cdf.png")
 
+    ## Sadly, this approach doesn't work, because the event X>36 is so rare.
+    ## Thus, we'll try importance sampling instead. 
+    ## First, we need to actually approximate the PDF P(X=k)
+    ## We use the CLT to justify doing so with a normal distribution
+
+    ## Calculate the moments for the approximation
+    mu = np.average(xs)
+    si = np.var(xs)
+    print(mu)
+    print(si)
+
+    ## We're forbidden from using a normally distributed RNG, so we'll use uniform
+    n = int(1e9)
+    ua = 35
+    ub = 48
+    scale = ub-ua
+
+    ## Finally, get the pdfs we'll need for the importance weight
+    prob = 1/float(scale) # Uniform, the importance distribution
+    h = lambda x : x > 36 # The function we're taking expectation of
+    g = lambda x : prob
+    f = lambda x : stats.norm(loc=mu,scale=si).pdf(x) # the approximate PDF of the target distribution
+    
+    ## All that's left is to take the samples and do the transform
+    X = np.random.uniform(ua,ub,size=n)
+    #X = np.random.normal(36,1,size=n)
+    p36 = np.sum(h(X)*f(X)/g(X))/float(n)
+    print(f"Problem 4:")
+    print(f"Importance sampling with normal approximation gives p(X>36): {p36}")
 ## Problem 5: Metropolis-Hastings simulation of a Markov Chain
 ## First, our sampling distribution, as given
 def P(x):
@@ -305,10 +336,10 @@ def problem5():
 # Each problem is defined as a function above. Here we actually run them!
 # (This just lets me easily run one at a time while I'm developing the solution)
 
-problem1()
-problem2(1.)
-problem2(2.)
-problem2(3.)
+# problem1()
+# problem2(1.)
+# problem2(2.)
+# problem2(3.)
 # problem3()
-# problem4()
+problem4()
 # problem5()
