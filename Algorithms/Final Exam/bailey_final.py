@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib import collections as mc
 from solvers import gradientDescent, newtonIneq
-
+import time
 ## Problem 1: Unconstrained minimization
 ## First, the objective function
 def sub_1(xk,xk1,yk,yk1):
@@ -42,6 +42,7 @@ def g_1(x):
 
 ## Solve the problem!
 def problem1():
+    start = time.time()
     x = np.ones((40,))
     sol = gradientDescent(f_1,g_1,x,f_1(x)+1,5e-2, 5e-6)
 
@@ -68,6 +69,7 @@ def problem1():
     plt.ylabel("Y")
     plt.savefig("p1.png")
 
+    print(f"Problem 1 took {time.time()-start} seconds.")
 
 from sympy import *
 from sympy.functions.elementary.exponential import log, sqrt
@@ -75,6 +77,7 @@ from sympy.functions.elementary.exponential import log, sqrt
 ## Problem 2: Inequality Constrained Minimization
 ## First, symbolics (objective function, gradient, and hessian)
 def problem2(r):
+    start = time.time()
     x,y,z,t = symbols('x y z t')
     f0 = x - y -z + x**2 - y**2 + x**3 + z**3
 
@@ -128,10 +131,16 @@ def problem2(r):
     print(f"Solved! Optimal point: ({x[0]}, {x[1]}, {x[2]}).")
     print(f"Optimal Function Value: {f213(x,1e9)}.")
 
+    print(f"Problem 2 took {time.time()-start} seconds.")
+
+def p2wrapper():
+    for i in range(1,4):
+        problem2(i)
 ## Problem 3: Trading cards in cookie boxes
 from random import random
 from scipy import interpolate
 def problem3():
+    start = time.time()
     ## The approach is straightforward
     ## We build the PMF for each N by monte carlo sampling
     ## Having the PMF, we can directly answer part 1, and integrate/sum
@@ -158,7 +167,7 @@ def problem3():
     ## Let's go from 100 to 1000 for now
     ## Obviously, we can't get a full set with less than 100... 
     probs = []
-    numTrials = int(1e4)
+    numTrials = int(1e3)
     ns = np.logspace(2,4,200,dtype=int)
     for n in ns:
         prob = 0.00
@@ -195,12 +204,14 @@ def problem3():
 
     ## Finally, print it out nice and pretty
     print(f"The probability that a full collection is obtained from 500 boxes or less: {p500}.")
-    plt.show()
+
+    print(f"Problem 3 took {time.time()-start} seconds.")
 
 
 ## Problem 4: A sum of IID RVs
 from scipy import stats
 def problem4():
+    start = time.time()
     ## Again, a very simple approach. 
     ## Sample X directly, 
     def getX():
@@ -265,6 +276,8 @@ def problem4():
     p36 = np.sum(h(X)*f(X)/g(X))/float(n)
     print(f"Problem 4:")
     print(f"Importance sampling with normal approximation gives p(X>36): {p36}")
+
+    print(f"Problem 4 took {time.time()-start} seconds.")
 ## Problem 5: Metropolis-Hastings simulation of a Markov Chain
 ## First, our sampling distribution, as given
 def P(x):
@@ -298,6 +311,7 @@ def mcmc_step(x):
         return x
 
 def problem5():
+    start = time.time()
     ## Parameters.
     m = 60 # points in the autocorrelation function to approximate
     samples = int(1e7) # samples to use in the approximation
@@ -333,13 +347,41 @@ def problem5():
     plt.ylabel("$E(x_nx_{n-m})$")
     plt.savefig("p5_autocorr.png")
 
+    print(f"Problem 5 took {time.time()-start} seconds.")
+
 # Each problem is defined as a function above. Here we actually run them!
 # (This just lets me easily run one at a time while I'm developing the solution)
 
+# start = time.time()
 # problem1()
+# start = time.time()
 # problem2(1.)
 # problem2(2.)
 # problem2(3.)
+# print(f"Problem 2 took {time.time()-start} seconds.")
+# start = time.time()
 # problem3()
-problem4()
+# print(f"Problem 3 took {time.time()-start} seconds.")
+# start = time.time()
+# problem4()
+# print(f"Problem 4 took {time.time()-start} seconds.")
+# start = time.time()
 # problem5()
+# print(f"Problem 5 took {time.time()-start} seconds.")
+# start = time.time()
+
+from multiprocessing import Process
+
+if __name__ == '__main__':
+    p1 = Process(target=problem1)
+    p1.start()
+    p2 = Process(target=p2wrapper)
+    p2.start()
+    p3 = Process(target=problem3)
+    p3.start()
+    p4 = Process(target=problem4)
+    p4.start()
+    p5 = Process(target=problem5)
+    p5.start()
+
+    p2.join()
