@@ -69,7 +69,8 @@ let findAdjacents node (adjMat:array<int> [,]) =
                         (searchList b (acc + 1))
           | _ -> []
 
-    (searchList adjList 0)
+    printfn "%A" adjList
+    //(searchList adjList 0)
 
 [<EntryPoint>]
 let main argv =
