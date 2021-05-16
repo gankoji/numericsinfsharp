@@ -76,21 +76,6 @@ let chooseMove (adjacent:List<int>) =
     let u = rand.Next(n)
     List.item u adjacent
 
-    // def randomWalkOnGraph(start, adjMat):
-    //     terminated = False
-    //     special = [0, 1] # Cheese is at node 0, cat at node 1
-    //     current = start
-    //     while (not terminated):
-    //         adjacents = findAdjacents(current, adjMat)
-    //         nextNode = chooseMove(adjacents)
-    //         if (nextNode in special):
-    //             terminated = True
-    //             if nextNode == 0:
-    //                 return 1
-    //             else:
-    //                 return 0
-    //         current = nextNode
-
 let randomWalkOnGraph start (adjMat:int [,]) =
     let special = [0;1]
     let rec walkGraph current =
@@ -116,20 +101,59 @@ let monteCarloWalk (nSamples:int) =
             (sample (List.append [(randomWalkOnGraph 15 adjacencyMatrix)] samples) (acc + 1))
     (sample samples 0)
 
+let brownianMotion () =
+    let rec walk x y =
+        let u = 0.1*rand.NextDouble()
+        let xp = 2.*(rand.NextDouble() - 0.5)
+        let yp = 2.*(rand.NextDouble() - 0.5)
+        let mag = sqrt(xp**2. + yp**2.)
+        let xn = x + u*xp/mag
+        let yn = y + u*yp/mag
+        if xn < 0. then
+            0
+        else if xn > 1. then
+            1
+        else if yn < 0. then
+            2
+        else if yn > 1. then
+            3
+        else 
+            (walk xn yn)
+
+    (walk (1./3.) (1./6.))
+
+// Once we have that, we loop until we get one of the coordinates to exceed the boundaries
+// Then, we just have to check which one, and monte carlo to find the probabilities
+let updateElement key f st =
+    st |> List.map (fun (k, v) -> if k = key then k, f v else k, v)
+
+let problem3 = 
+    let ntrials = (int 1e4)
+    let dirsStart = [(0,0);(1,0);(2,0);(3,0)]
+    let rec doTrials dirs acc =
+        if acc > ntrials then
+            dirs
+        else
+            let result = (brownianMotion())
+            doTrials (updateElement result (fun (x) -> x + 1) dirs) (acc + 1)
+    
+    let outcomes = (doTrials dirsStart 0)
+    outcomes |> List.map (fun (x,y) -> (float y)/(float ntrials))
 [<EntryPoint>]
 let main argv =
     let stopwatch = System.Diagnostics.Stopwatch.StartNew()
     // Problem 23.2: Monte-Carlo sampling of
     // an arbitrary distribution
-    printfn "%A" (monteCarloSamples (int 1e6))
+    let samples = (monteCarloSamples (int 1e6))
     // While the code is somewhat different (recursion vs looping)
     // They're very similar lengths: 25 lines in python, 21 in F#
 
     // Next up: 24.1, a mouse's random walk 
-    let nRuns = 1000000
+    let nRuns = 100000
     let successes = (List.sum (monteCarloWalk nRuns))
 
     stopwatch.Stop()
     printfn "Probability that mouse survivies: %A" ((float successes)/(float nRuns))
+    printfn "Result of Brownian Walk: %A" (problem3)
     printfn "Elapsed time: %f" stopwatch.Elapsed.TotalSeconds
     0 // return an integer exit code
