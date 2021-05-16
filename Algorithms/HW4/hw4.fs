@@ -81,7 +81,6 @@ let randomWalkOnGraph start (adjMat:int [,]) =
     let rec walkGraph current =
         let adjacents = (findAdjacents current adjMat)
         let nextNode = (chooseMove adjacents)
-        // if (nextNode in special)
         if (List.contains nextNode special) then
             if (nextNode = 0) then
                 1
@@ -92,7 +91,6 @@ let randomWalkOnGraph start (adjMat:int [,]) =
     (walkGraph start)
 
 let monteCarloWalk (nSamples:int) =
-    // Use oneSample above to get to nSamples
     let samples = []
     let rec sample samples acc =
         if acc = nSamples then
@@ -122,38 +120,101 @@ let brownianMotion () =
 
     (walk (1./3.) (1./6.))
 
-// Once we have that, we loop until we get one of the coordinates to exceed the boundaries
-// Then, we just have to check which one, and monte carlo to find the probabilities
 let updateElement key f st =
     st |> List.map (fun (k, v) -> if k = key then k, f v else k, v)
 
-let problem3 = 
-    let ntrials = (int 1e4)
+// Helper functions for 25.1
+let p x =
+    if ((x >= 0.) && (x < 100.)) then
+        Math.Exp(-x)
+    else
+        0.
+
+let a x xp =
+    let p1 = (p x)
+    let p2 = (p xp)
+    Math.Min(1., p2/p1)
+
+let expectation (chain:List<float>) =
+    let rec sumdiffs chain acc =
+        match chain with
+        | a::(b::c) -> (sumdiffs (b::c) ((a-1.)*(b-1.) + acc))
+        | _ -> acc
+
+    let res = (sumdiffs chain 0.)
+    (float res)/(float chain.Length)
+
+let markovChain s x0 =
+    let nsteps = (int 1e6)
+    let rec chainStep (xs:List<float>) acc =
+        if acc > nsteps then
+            xs
+        else
+            let x = (List.head xs) 
+            let u = s*(rand.NextDouble() - 0.5)
+            let xp = x + u
+            let A = (a x xp)
+            let u = rand.NextDouble()
+            if A >= u then
+                (chainStep (xp::xs) (acc+1))
+            else
+                (chainStep (x::xs) (acc+1))
+
+    (expectation (chainStep [x0] 0))
+
+let problem1 () = 
+    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+    let samples = (monteCarloSamples (int 1e4))
+    stopwatch.Stop()
+    printfn "Problem 1 Elapsed time: %f" stopwatch.Elapsed.TotalSeconds
+
+let problem2 () =
+    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+    let nRuns = (int 1e6)
+    let successes = (List.sum (monteCarloWalk nRuns))
+    printfn "Probability that mouse survivies: %A" ((float successes)/(float nRuns))
+    stopwatch.Stop()
+    printfn "Problem 2 Elapsed time: %f" stopwatch.Elapsed.TotalSeconds
+
+let problem3 () = 
+    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+    let ntrials = (int 1e7)
     let dirsStart = [(0,0);(1,0);(2,0);(3,0)]
     let rec doTrials dirs acc =
         if acc > ntrials then
             dirs
         else
-            let result = (brownianMotion())
+            let result = brownianMotion()
             doTrials (updateElement result (fun (x) -> x + 1) dirs) (acc + 1)
     
     let outcomes = (doTrials dirsStart 0)
-    outcomes |> List.map (fun (x,y) -> (float y)/(float ntrials))
+    printfn "Result of Brownian Walk: %A" (outcomes |> List.map (fun (x,y) -> (float y)/(float ntrials)))
+    stopwatch.Stop()
+    printfn "Problem 3 Elapsed time: %f" stopwatch.Elapsed.TotalSeconds
+
+let problem4 () =
+    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+    let sigmas = [0.1;1.;2.;3.;4.9;5.;5.1; 5.2; 20.; 25.; 30.]
+    let exs = sigmas |> List.map (fun (s) -> (s,(markovChain s 0.)))
+    let bestEx = List.minBy (fun (a,b) -> b) exs
+    printfn "Minimum expectation: %A, at sigma %A" (snd bestEx) (fst bestEx)
+    stopwatch.Stop()
+    printfn "Problem 4 Elapsed time: %f" stopwatch.Elapsed.TotalSeconds
+
 [<EntryPoint>]
 let main argv =
     let stopwatch = System.Diagnostics.Stopwatch.StartNew()
     // Problem 23.2: Monte-Carlo sampling of
     // an arbitrary distribution
-    let samples = (monteCarloSamples (int 1e6))
-    // While the code is somewhat different (recursion vs looping)
-    // They're very similar lengths: 25 lines in python, 21 in F#
+    problem1()
 
     // Next up: 24.1, a mouse's random walk 
-    let nRuns = 100000
-    let successes = (List.sum (monteCarloWalk nRuns))
+    problem2()
 
-    stopwatch.Stop()
-    printfn "Probability that mouse survivies: %A" ((float successes)/(float nRuns))
-    printfn "Result of Brownian Walk: %A" (problem3)
-    printfn "Elapsed time: %f" stopwatch.Elapsed.TotalSeconds
+    // 24.5, Brownian Motion
+    problem3()
+
+    // 25.1, Autocorrelation of a Markov chain
+    problem4()
+
     0 // return an integer exit code
