@@ -167,8 +167,8 @@ def problem3():
     ## Let's go from 100 to 1000 for now
     ## Obviously, we can't get a full set with less than 100... 
     probs = []
-    numTrials = int(1e3)
-    ns = np.logspace(2,4,200,dtype=int)
+    numTrials = int(1e2)
+    ns = np.logspace(2,4,20,dtype=int)
     for n in ns:
         prob = 0.00
         for m in range(0,numTrials):
@@ -216,8 +216,13 @@ def problem4():
     ## Sample X directly, 
     def getX():
         # Generate 48 IID uniform samples
-        xs = np.random.uniform(0,1,size=48)
-        return np.sum(xs)
+        # xs = np.random.uniform(0,1,size=48)
+        # return np.sum(xs)
+        sumx = 0.0
+        for i in range(0,48):
+            sumx += random()
+
+        return sumx
 
     ## and build it's statistics via a monte carlo approach.
     def buildCDF(n):
@@ -229,7 +234,7 @@ def problem4():
         ys = np.linspace(0,1,n)
         return xs, ys
 
-    n = int(1e6)
+    n = int(1e8)
     xs,ys = buildCDF(n)
 
     cdf_interp = interpolate.interp1d(xs,ys)
@@ -255,11 +260,9 @@ def problem4():
     ## Calculate the moments for the approximation
     mu = np.average(xs)
     si = np.var(xs)
-    print(mu)
-    print(si)
 
     ## We're forbidden from using a normally distributed RNG, so we'll use uniform
-    n = int(1e9)
+    n = int(1e4)
     ua = 35
     ub = 48
     scale = ub-ua
@@ -274,7 +277,6 @@ def problem4():
     X = np.random.uniform(ua,ub,size=n)
     #X = np.random.normal(36,1,size=n)
     p36 = np.sum(h(X)*f(X)/g(X))/float(n)
-    print(f"Problem 4:")
     print(f"Importance sampling with normal approximation gives p(X>36): {p36}")
 
     print(f"Problem 4 took {time.time()-start} seconds.")
@@ -314,7 +316,7 @@ def problem5():
     start = time.time()
     ## Parameters.
     m = 60 # points in the autocorrelation function to approximate
-    samples = int(1e7) # samples to use in the approximation
+    samples = int(1e6) # samples to use in the approximation
     throwout = int(1e3) # number of samples to toss out at the beginning
     n = throwout+samples # total number we'll take
 
@@ -374,14 +376,14 @@ from multiprocessing import Process
 
 if __name__ == '__main__':
     p1 = Process(target=problem1)
-    p1.start()
+    #p1.start()
     p2 = Process(target=p2wrapper)
-    p2.start()
+    #p2.start()
     p3 = Process(target=problem3)
-    p3.start()
+    #p3.start()
     p4 = Process(target=problem4)
     p4.start()
     p5 = Process(target=problem5)
-    p5.start()
+    #p5.start()
 
-    p2.join()
+    p4.join()
