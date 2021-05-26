@@ -7,7 +7,7 @@ import time
 ## Problem 1: Unconstrained minimization
 ## First, the objective function
 def sub_1(xk,xk1,yk,yk1):
-    eps = 1e-1
+    eps = 1e-8
     if (yk <= eps) or (yk1 <= eps):
         print("Domain error")
         return 1e6
@@ -30,7 +30,7 @@ def f_1(x):
 
 ## Next, we need it's derivative
 def g_1(x):
-    delta = 1e-2
+    delta = 1e-8
     f0 = f_1(x)
     dx = np.zeros(x.shape)
     for i in range(1,40):
@@ -44,6 +44,9 @@ def g_1(x):
 def problem1():
     start = time.time()
     x = np.ones((40,))
+    a = np.linspace(-5., 12., 20)
+    b = np.linspace(12., 5., 20)
+    x = np.append(a,b)
     sol = gradientDescent(f_1,g_1,x,f_1(x)+1,5e-2, 5e-6)
 
     ## This next bit is a bit of tap dancing to get our solution
@@ -177,7 +180,7 @@ def problem3():
         prob = prob/numTrials
         probs.append(prob)
     pmf = np.array(probs)
-    pmf = pmf/np.sum(pmf)
+    #pmf = pmf/np.sum(pmf)
     cmf = np.zeros(pmf.shape)
     for i in range(0,len(cmf)):
         cmf[i] = np.sum(pmf[0:i+1])
@@ -185,7 +188,7 @@ def problem3():
     plt.plot(ns,pmf)
     plt.xlabel("k, Number of cookie boxes")
     plt.ylabel("Probability of full set")
-    plt.title("Probability Mass Function p(N=k)")
+    plt.title("Cumulative Distribution Function p(N=k)")
     plt.savefig("p3_pmf.png")
 
     plt.figure()
@@ -206,7 +209,6 @@ def problem3():
     print(f"The probability that a full collection is obtained from 500 boxes or less: {p500}.")
 
     print(f"Problem 3 took {time.time()-start} seconds.")
-
 
 ## Problem 4: A sum of IID RVs
 from scipy import stats
@@ -234,7 +236,7 @@ def problem4():
         ys = np.linspace(0,1,n)
         return xs, ys
 
-    n = int(1e8)
+    n = int(1e6)
     xs,ys = buildCDF(n)
 
     cdf_interp = interpolate.interp1d(xs,ys)
@@ -259,10 +261,10 @@ def problem4():
 
     ## Calculate the moments for the approximation
     mu = np.average(xs)
-    si = np.var(xs)
+    si = math.sqrt(np.var(xs))
 
     ## We're forbidden from using a normally distributed RNG, so we'll use uniform
-    n = int(1e4)
+    n = int(1e6)
     ua = 35
     ub = 48
     scale = ub-ua
@@ -294,10 +296,10 @@ def T(x,xp):
 
 ## Then, we calculate the acceptance probability of a given step
 def A(x,xp):
-    if (T(xp,x) < 1e-5) or (P(x) < 1e-5):
+    if (T(x,xp) < 1e-5) or (P(x) < 1e-5):
         return 1. 
     else:
-        temp = P(xp)/P(x)*T(x,xp)/T(xp,x)
+        temp = P(xp)/P(x)*T(xp,x)/T(x,xp)
         return min(1,temp)
 
 ## Take a step along the chain
@@ -316,8 +318,8 @@ def problem5():
     start = time.time()
     ## Parameters.
     m = 60 # points in the autocorrelation function to approximate
-    samples = int(1e6) # samples to use in the approximation
-    throwout = int(1e3) # number of samples to toss out at the beginning
+    samples = int(1e4) # samples to use in the approximation
+    throwout = int(1e4) # number of samples to toss out at the beginning
     n = throwout+samples # total number we'll take
 
     ## Data storage
@@ -352,38 +354,18 @@ def problem5():
     print(f"Problem 5 took {time.time()-start} seconds.")
 
 # Each problem is defined as a function above. Here we actually run them!
-# (This just lets me easily run one at a time while I'm developing the solution)
-
-# start = time.time()
-# problem1()
-# start = time.time()
-# problem2(1.)
-# problem2(2.)
-# problem2(3.)
-# print(f"Problem 2 took {time.time()-start} seconds.")
-# start = time.time()
-# problem3()
-# print(f"Problem 3 took {time.time()-start} seconds.")
-# start = time.time()
-# problem4()
-# print(f"Problem 4 took {time.time()-start} seconds.")
-# start = time.time()
-# problem5()
-# print(f"Problem 5 took {time.time()-start} seconds.")
-# start = time.time()
-
 from multiprocessing import Process
 
 if __name__ == '__main__':
     p1 = Process(target=problem1)
-    #p1.start()
+    p1.start()
     p2 = Process(target=p2wrapper)
-    #p2.start()
+    p2.start()
     p3 = Process(target=problem3)
-    #p3.start()
+    p3.start()
     p4 = Process(target=problem4)
     p4.start()
     p5 = Process(target=problem5)
-    #p5.start()
+    p5.start()
 
-    p4.join()
+    p5.join()
