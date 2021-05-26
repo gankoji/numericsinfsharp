@@ -1,12 +1,10 @@
-## Problem 23.2: Write an RNG that produces numbers distributed according to
-## f(x) = x^2, 0<x<1, sqrt(2-x), 1<x<2, 0 o.w.
-
-## von Neumann's rejection method applies here.
 from sympy import *
 from sympy.functions.elementary.piecewise import Piecewise
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import time
+
 # This is actually a handy little tool I made, keeping it!
 def makeBins(binSize, start, end):
     bins = [start]
@@ -196,7 +194,10 @@ def problem4():
     bestS = sigmas[ib]
     print(f"Minimum expectation: {bestEx}, at Sigma {bestS}")
 
+start = time.time()
 problem1()
 problem2()
-#problem3()
-#problem4()
+problem3()
+problem4()
+end = time.time()
+print(f"Total elapsed time: {end-start}.")
